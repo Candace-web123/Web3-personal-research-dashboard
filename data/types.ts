@@ -174,3 +174,41 @@ export interface RiskTag {
   category?: string;
   relatedAssetId?: string;
 }
+
+// --- V1.2 BTC 周期快照（TASK-005）---
+
+/** PRD 4.3 — BTC 周期状态分类 */
+export const BtcCycleStage = {
+  /** 底部积累区 */
+  BottomAccumulation: "BottomAccumulation",
+  /** 上涨早期 */
+  EarlyUptrend: "EarlyUptrend",
+  /** 上涨中期 */
+  MidUptrend: "MidUptrend",
+  /** 过热区 */
+  Overheated: "Overheated",
+  /** 顶部风险区 */
+  TopRisk: "TopRisk",
+  /** 下跌/防守区 */
+  DowntrendDefensive: "DowntrendDefensive"
+} as const;
+export type BtcCycleStage = (typeof BtcCycleStage)[keyof typeof BtcCycleStage];
+
+/** PRD 4.4 — BTC 周期卡快照（MVP mock；指标为占位文案，非实时计算） */
+export type BtcCycleSnapshot = {
+  asOf: string;
+  priceUsd: string;
+  cycleStage: string;
+  mvrv: string;
+  nupl: string;
+  puellMultiple: string;
+  piCycleSignal: string;
+  twoHundredWeekMa: string;
+  fearGreedIndex: string;
+  etfFlowSummary: string;
+  macroLiquiditySummary: string;
+  currentJudgement: string;
+  btcActionBias: string;
+  supportsAltAlphaObservation: boolean;
+  riskNotes: string[];
+};
