@@ -212,3 +212,52 @@ export type BtcCycleSnapshot = {
   supportsAltAlphaObservation: boolean;
   riskNotes: string[];
 };
+
+// --- V1.2 每日市场环境评分（TASK-006）---
+
+/** PRD 5.2 — 单维度环境评分（−1 偏空 / 0 中性 / +1 偏多） */
+export type MarketDimensionScore = -1 | 0 | 1;
+
+/** PRD 5.2 / 5.3 — 每日市场环境评分卡快照（MVP mock；非实时计算） */
+export type MarketEnvironmentSnapshot = {
+  asOf: string;
+  stablecoinsScore: MarketDimensionScore;
+  defiTvlScore: MarketDimensionScore;
+  dexVolumeScore: MarketDimensionScore;
+  etfDatScore: MarketDimensionScore;
+  macroPolicyScore: MarketDimensionScore;
+  totalScore: number;
+  regime: MarketRegime;
+  conclusion: string;
+  ethAndMainstreamSummary: string;
+  stablecoinLiquiditySummary: string;
+  topRisks: RiskTag[];
+};
+
+// --- V1.2 Alpha 观察池（TASK-007）---
+
+/**
+ * PRD 9.4 / 13.3 — Alpha 观察池单条记录（MVP mock）。
+ * 观察池 ≠ 买入清单；文案仅作跟踪与验证参考。
+ */
+export type AlphaPoolEntry = {
+  id: string;
+  /** 关联 `WATCHLIST_UNIVERSE` 的 assetId（若有） */
+  universeAssetId?: string;
+  projectName: string;
+  token: string;
+  chain: string;
+  sector: string;
+  /** 为什么进池（可读短句） */
+  thesisLine: string;
+  coreMoveSummary: string;
+  tokenTransmission: string;
+  valuationSupplySummary: string;
+  catalyst: string;
+  maxRisk: string;
+  grade: AlphaGrade;
+  lifecycle: AlphaLifecycleState;
+  nextVerification: string;
+  holderNotes?: string;
+  risks: RiskTag[];
+};
