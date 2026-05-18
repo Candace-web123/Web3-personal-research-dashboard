@@ -261,3 +261,46 @@ export type AlphaPoolEntry = {
   holderNotes?: string;
   risks: RiskTag[];
 };
+
+// --- V1.2 仓位建议（TASK-008）---
+
+/** PRD 11.4 — 用户风险偏好（MVP 默认保守型） */
+export const UserRiskProfile = {
+  Conservative: "Conservative",
+  Balanced: "Balanced",
+  Aggressive: "Aggressive"
+} as const;
+export type UserRiskProfile =
+  (typeof UserRiskProfile)[keyof typeof UserRiskProfile];
+
+/** PRD 11.4 / 11.5 — 四类资产占比区间（字符串区间，如 "40-60%"） */
+export type AllocationRange = {
+  btcEth: string;
+  stablecoin: string;
+  alpha: string;
+  highRiskHotspot: string;
+};
+
+/** PRD 11.5 — 今日仓位建议快照（MVP mock；非买入价推荐） */
+export type PositionAdviceSnapshot = {
+  asOf: string;
+  riskProfile: UserRiskProfile;
+  marketRegime: MarketRegime;
+  btcCycleStage: string;
+  btcEthAllocation: string;
+  stablecoinAllocation: string;
+  alphaAllocation: string;
+  highRiskHotspotAllocation: string;
+  /** 今日是否适合新增风险仓位（含 Alpha / 热点） */
+  suitableToAddPosition: boolean;
+  /** 今日是否以观察为主、不宜主动进攻 */
+  observationOnly: boolean;
+  /** 今日重点深挖 1～3 个项目名 */
+  deepDiveProjects: string[];
+  /** 不建议追高 / 不宜操作的标的或情形 */
+  doNotChase: string[];
+  /** 仓位调整理由要点（2～4 条） */
+  rationale: string[];
+  /** 可选：平衡型区间（默认 UI 不展示） */
+  balancedAllocation?: AllocationRange;
+};

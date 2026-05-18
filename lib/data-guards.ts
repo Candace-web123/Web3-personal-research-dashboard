@@ -1,0 +1,113 @@
+import { ALPHA_POOL } from "@/data/alpha-pool";
+import { BTC_CYCLE_SNAPSHOT } from "@/data/btc-cycle";
+import { MARKET_ENVIRONMENT_SNAPSHOT } from "@/data/market-environment";
+import { MOVERS_TOP5 } from "@/data/movers-top5";
+import { POSITION_ADVICE_SNAPSHOT } from "@/data/position-advice";
+import type { AlphaPoolEntry, WatchlistUniverseEntry } from "@/data/types";
+import { WATCHLIST_UNIVERSE } from "@/data/watchlist-universe";
+
+const WATCHLIST_UNIVERSE_MIN_LENGTH = 25;
+const WATCHLIST_UNIVERSE_MAX_LENGTH = 32;
+const MOVERS_TOP5_LENGTH = 5;
+const ALPHA_POOL_MIN_LENGTH = 8;
+const ALPHA_POOL_DISPLAY_MAX = 10;
+
+/** 开发 / 测试期校验；生产构建下为 no-op，避免运行时抛错 */
+function isDevAssertionEnabled(): boolean {
+  return process.env.NODE_ENV !== "production";
+}
+
+function assertInvariant(condition: boolean, message: string): void {
+  if (!condition) {
+    throw new Error(`[v12-data-guard] ${message}`);
+  }
+}
+
+/** 校验观察宇宙规模与 symbol / id 唯一性 */
+export function assertWatchlistUniverse(
+  universe: readonly WatchlistUniverseEntry[] = WATCHLIST_UNIVERSE
+): void {
+  if (!isDevAssertionEnabled()) return;
+
+  assertInvariant(
+    universe.length >= WATCHLIST_UNIVERSE_MIN_LENGTH &&
+      universe.length <= WATCHLIST_UNIVERSE_MAX_LENGTH,
+    `WATCHLIST_UNIVERSE length must be ${WATCHLIST_UNIVERSE_MIN_LENGTH}–${WATCHLIST_UNIVERSE_MAX_LENGTH}, got ${universe.length}`
+  );
+
+  const symbols = universe.map((entry) => entry.symbol);
+  const ids = universe.map((entry) => entry.id);
+  assertInvariant(
+    new Set(symbols).size === symbols.length,
+    "WATCHLIST_UNIVERSE symbols must be unique"
+  );
+  assertInvariant(
+    new Set(ids).size === ids.length,
+    "WATCHLIST_UNIVERSE ids must be unique"
+  );
+}
+
+/** 校验异动 Top 5 条数，且 assetId 均存在于观察宇宙 */
+export function assertMoversTop5(
+  movers: readonly { assetId: string }[] = MOVERS_TOP5
+): void {
+  if (!isDevAssertionEnabled()) return;
+
+  assertInvariant(
+    movers.length === MOVERS_TOP5_LENGTH,
+    `MOVERS_TOP5 must have exactly ${MOVERS_TOP5_LENGTH} entries, got ${movers.length}`
+  );
+
+  const universeIds = new Set(WATCHLIST_UNIVERSE.map((entry) => entry.id));
+  for (const mover of movers) {
+    assertInvariant(
+      universeIds.has(mover.assetId),
+      `Mover assetId "${mover.assetId}" not found in WATCHLIST_UNIVERSE`
+    );
+  }
+}
+
+/** 校验 Alpha 池条数下限与首页展示上限 */
+export function assertAlphaPool(
+  pool: readonly AlphaPoolEntry[] = ALPHA_POOL
+): void {
+  if (!isDevAssertionEnabled()) return;
+
+  assertInvariant(
+    pool.length >= ALPHA_POOL_MIN_LENGTH,
+    `ALPHA_POOL should have at least ${ALPHA_POOL_MIN_LENGTH} entries, got ${pool.length}`
+  );
+  assertInvariant(
+    pool.length <= ALPHA_POOL_DISPLAY_MAX,
+    `ALPHA_POOL length must be ≤ ${ALPHA_POOL_DISPLAY_MAX} for homepage Top 10 cap, got ${pool.length}`
+  );
+
+  const ids = pool.map((entry) => entry.id);
+  assertInvariant(
+    new Set(ids).size === ids.length,
+    "ALPHA_POOL ids must be unique"
+  );
+}
+
+/** 校验 V1.2 各快照 asOf 日期一致 */
+export function assertV12SnapshotsAsOfAligned(): void {
+  if (!isDevAssertionEnabled()) return;
+
+  const asOfValues = new Set([
+    BTC_CYCLE_SNAPSHOT.asOf,
+    MARKET_ENVIRONMENT_SNAPSHOT.asOf,
+    POSITION_ADVICE_SNAPSHOT.asOf
+  ]);
+  assertInvariant(
+    asOfValues.size === 1,
+    `V1.2 snapshot asOf must align; got: ${[...asOfValues].join(", ")}`
+  );
+}
+
+/** 一次性运行全部 V1.2 mock 轻量校验（dev / test 用） */
+export function assertV12MockData(): void {
+  assertWatchlistUniverse();
+  assertMoversTop5();
+  assertAlphaPool();
+  assertV12SnapshotsAsOfAligned();
+}
