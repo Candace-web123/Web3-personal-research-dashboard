@@ -7,7 +7,8 @@ import type {
   MarketEnvironmentSnapshot,
   MarketRegime,
   PositionAdviceSnapshot,
-  RiskTag
+  RiskTag,
+  StrongSignalsDailySnapshot
 } from "@/data/types";
 import { AlphaLifecycleState } from "@/data/types";
 
@@ -60,6 +61,7 @@ export type BuildDecisionCardModelParams = {
   moversTop5: readonly MoverTop5Entry[];
   alphaTop10: readonly AlphaPoolEntry[];
   positionAdviceSnapshot: PositionAdviceSnapshot;
+  strongSignalsSnapshot?: StrongSignalsDailySnapshot;
 };
 
 /**
@@ -153,7 +155,8 @@ export function buildDecisionCardModel(
     marketEnvironmentSnapshot,
     moversTop5,
     alphaTop10,
-    positionAdviceSnapshot
+    positionAdviceSnapshot,
+    strongSignalsSnapshot
   } = params;
 
   const asOf =
@@ -187,6 +190,7 @@ export function buildDecisionCardModel(
     observationOnly,
     topRisks,
     conclusion: marketEnvironmentSnapshot.conclusion,
-    riskReminder: buildRiskReminder(positionAdviceSnapshot, observationOnly)
+    riskReminder: buildRiskReminder(positionAdviceSnapshot, observationOnly),
+    strongestDirection: strongSignalsSnapshot?.strongestDirection
   };
 }

@@ -4,7 +4,17 @@ import { MARKET_ENVIRONMENT_SNAPSHOT } from "@/data/market-environment";
 import { MOVERS_TOP5 } from "@/data/movers-top5";
 import { POSITION_ADVICE_SNAPSHOT } from "@/data/position-advice";
 import type { AlphaPoolEntry, WatchlistUniverseEntry } from "@/data/types";
+import { STRONG_SIGNALS_DAILY_SNAPSHOT } from "@/data/strong-signals";
+import type {
+  StrongChainEntry,
+  StrongProtocolEntry,
+  StrongSectorEntry
+} from "@/data/types";
 import { WATCHLIST_UNIVERSE } from "@/data/watchlist-universe";
+
+const STRONG_CHAIN_TOP = 3;
+const STRONG_SECTOR_TOP = 3;
+const STRONG_PROTOCOL_TOP = 5;
 
 const WATCHLIST_UNIVERSE_MIN_LENGTH = 25;
 const WATCHLIST_UNIVERSE_MAX_LENGTH = 32;
@@ -96,11 +106,63 @@ export function assertV12SnapshotsAsOfAligned(): void {
   const asOfValues = new Set([
     BTC_CYCLE_SNAPSHOT.asOf,
     MARKET_ENVIRONMENT_SNAPSHOT.asOf,
-    POSITION_ADVICE_SNAPSHOT.asOf
+    POSITION_ADVICE_SNAPSHOT.asOf,
+    STRONG_SIGNALS_DAILY_SNAPSHOT.asOf
   ]);
   assertInvariant(
     asOfValues.size === 1,
     `V1.2 snapshot asOf must align; got: ${[...asOfValues].join(", ")}`
+  );
+}
+
+function assertStrongSignalRanks<T extends { id: string; rank: number }>(
+  label: string,
+  entries: readonly T[],
+  expectedLength: number
+): void {
+  assertInvariant(
+    entries.length === expectedLength,
+    `${label} must have exactly ${expectedLength} entries, got ${entries.length}`
+  );
+  const ids = entries.map((entry) => entry.id);
+  assertInvariant(new Set(ids).size === ids.length, `${label} ids must be unique`);
+  const ranks = entries.map((entry) => entry.rank).sort((a, b) => a - b);
+  const expectedRanks = Array.from({ length: expectedLength }, (_, index) => index + 1);
+  assertInvariant(
+    ranks.every((rank, index) => rank === expectedRanks[index]),
+    `${label} ranks must be 1..${expectedLength}`
+  );
+}
+
+/** 校验强链 / 强赛道 / 强协议 Top 条数与 rank */
+export function assertStrongSignals(
+  snapshot = STRONG_SIGNALS_DAILY_SNAPSHOT
+): void {
+  if (!isDevAssertionEnabled()) return;
+
+  assertStrongSignalRanks<StrongChainEntry>(
+    "strong chains",
+    snapshot.chains,
+    STRONG_CHAIN_TOP
+  );
+  assertStrongSignalRanks<StrongSectorEntry>(
+    "strong sectors",
+    snapshot.sectors,
+    STRONG_SECTOR_TOP
+  );
+  assertStrongSignalRanks<StrongProtocolEntry>(
+    "strong protocols",
+    snapshot.protocols,
+    STRONG_PROTOCOL_TOP
+  );
+
+  assertInvariant(
+    snapshot.strongestDirection.trim().length > 0,
+    "strongestDirection must be non-empty"
+  );
+  assertInvariant(
+    snapshot.sectionHeadline.trim().length > 0,
+    "sectionHeadline must be non-empty"
   );
 }
 
@@ -109,5 +171,6 @@ export function assertV12MockData(): void {
   assertWatchlistUniverse();
   assertMoversTop5();
   assertAlphaPool();
+  assertStrongSignals();
   assertV12SnapshotsAsOfAligned();
 }
