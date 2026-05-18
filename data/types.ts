@@ -113,3 +113,64 @@ export type WatchlistUniverseEntry = {
   /** 为 true 时不参与 Alpha 同一评分体系（如 B 层稳定币） */
   excludeFromAlphaScoring?: boolean;
 };
+
+// --- V1.2 市场环境、池内状态、Alpha 与风险标签（TASK-003）---
+
+/** PRD 5.3 — 市场环境分类 */
+export const MarketRegime = {
+  /** 强进攻 */
+  StrongRiskOn: "StrongRiskOn",
+  /** 中性轮动 */
+  NeutralRotation: "NeutralRotation",
+  /** 谨慎 */
+  Cautious: "Cautious",
+  /** 防守 */
+  Defensive: "Defensive"
+} as const;
+export type MarketRegime = (typeof MarketRegime)[keyof typeof MarketRegime];
+
+/** PRD 4-1.6 — 观察宇宙中的资产状态 */
+export const UniverseAssetStatus = {
+  /** 普通观察 */
+  Normal: "Normal",
+  /** 异动观察 */
+  Moving: "Moving",
+  /** Alpha 候选 */
+  AlphaCandidate: "AlphaCandidate",
+  /** 重点深挖 */
+  DeepDive: "DeepDive",
+  /** 风险升高 */
+  RiskElevated: "RiskElevated",
+  /** 移除 */
+  Removed: "Removed"
+} as const;
+export type UniverseAssetStatus =
+  (typeof UniverseAssetStatus)[keyof typeof UniverseAssetStatus];
+
+/** Alpha 观察池评级 */
+export type AlphaGrade = "A" | "B" | "C" | "D";
+
+/** PRD 二十二章 — Alpha 项目生命周期 */
+export const AlphaLifecycleState = {
+  /** 新发现 */
+  NewlyFound: "NewlyFound",
+  /** 观察中 */
+  Watching: "Watching",
+  /** 重点跟踪 */
+  FocusTracking: "FocusTracking",
+  /** 风险升高 */
+  RiskElevated: "RiskElevated",
+  /** 移除 */
+  Removed: "Removed"
+} as const;
+export type AlphaLifecycleState =
+  (typeof AlphaLifecycleState)[keyof typeof AlphaLifecycleState];
+
+/** PRD 23.3 — 风险标签（提示卡 / Alpha / 市场环境风险列表） */
+export interface RiskTag {
+  priority: "P0" | "P1" | "P2" | "P3";
+  code: string;
+  message: string;
+  category?: string;
+  relatedAssetId?: string;
+}
