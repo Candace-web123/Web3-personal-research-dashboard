@@ -82,6 +82,7 @@ export type {
   AssetChainName,
   AssetSectorName,
   BtcCycleSnapshot,
+  DecisionCardViewModel,
   MarketEnvironmentSnapshot,
   Narrative,
   PositionAdviceSnapshot,
