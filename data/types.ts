@@ -305,6 +305,89 @@ export type PositionAdviceSnapshot = {
   balancedAllocation?: AllocationRange;
 };
 
+// --- V1.2 强链 / 强赛道 / 强协议（TASK-022A · PRD 六～八、12.1）---
+
+/** PRD 6.2 — 强链类型（MVP 人工标签，非算法输出） */
+export const StrongChainKind = {
+  /** 资金沉淀型 */
+  CapitalDeposit: "CapitalDeposit",
+  /** 交易活跃型 */
+  TradingActive: "TradingActive",
+  /** 应用收入型 */
+  AppRevenue: "AppRevenue",
+  /** 激励驱动型 */
+  IncentiveDriven: "IncentiveDriven"
+} as const;
+export type StrongChainKind =
+  (typeof StrongChainKind)[keyof typeof StrongChainKind];
+
+/** 关键指标行（mock 展示用，值为人工录入文案） */
+export type StrongSignalMetric = {
+  label: string;
+  value: string;
+};
+
+/** PRD 6.1 / 6.2 / 12.4 — 强链 Top 单条 */
+export type StrongChainEntry = {
+  id: string;
+  rank: number;
+  chainName: string;
+  chainKind: StrongChainKind;
+  /** 先结论：今日对该链的一句话判断 */
+  headlineConclusion: string;
+  /** 再数据：指标摘要行 */
+  metrics: StrongSignalMetric[];
+  /** 再数据：趋势与资金叙述（非实时计算） */
+  dataNarrative: string;
+  /** PRD 6.2 — 适合观察的赛道方向 */
+  suitableFor: string;
+  /** 风险提示（激励型、单日 spike 等） */
+  riskNote?: string;
+};
+
+/** PRD 7.2 / 12.4 — 强赛道 Top 单条 */
+export type StrongSectorEntry = {
+  id: string;
+  rank: number;
+  sectorName: string;
+  headlineConclusion: string;
+  metrics: StrongSignalMetric[];
+  dataNarrative: string;
+  /** 多代表协议是否同步走强 */
+  resonanceNote: string;
+  riskNote?: string;
+};
+
+/** PRD 8.2 / 12.5 — 强协议 Top 单条 */
+export type StrongProtocolEntry = {
+  id: string;
+  rank: number;
+  protocolName: string;
+  token?: string;
+  chain: string;
+  sector: string;
+  headlineConclusion: string;
+  metrics: StrongSignalMetric[];
+  dataNarrative: string;
+  /** PRD 8.1 — 协议强 vs 代币传导（人工判断） */
+  protocolVsTokenNote: string;
+  riskNote?: string;
+};
+
+/** 每日强信号快照（强链 Top3 + 强赛道 Top3 + 强协议 Top5） */
+export type StrongSignalsDailySnapshot = {
+  asOf: string;
+  /** 区块级结论（先结论） */
+  sectionHeadline: string;
+  /** PRD 19.2 — 今日最强方向，供决策卡引用 */
+  strongestDirection: string;
+  /** 区块级风险提示 */
+  sectionRiskNote?: string;
+  chains: StrongChainEntry[];
+  sectors: StrongSectorEntry[];
+  protocols: StrongProtocolEntry[];
+};
+
 // --- V1.2 今日决策卡 ViewModel（TASK-010）---
 
 /** PRD 19.2 — 首页今日决策卡展示模型（纯数据，无 React 依赖） */
@@ -325,4 +408,6 @@ export type DecisionCardViewModel = {
   topRisks: RiskTag[];
   conclusion: string;
   riskReminder: string;
+  /** PRD 19.2 — 今日最强方向（来自强信号快照） */
+  strongestDirection?: string;
 };

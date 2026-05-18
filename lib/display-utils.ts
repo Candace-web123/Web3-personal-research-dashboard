@@ -4,6 +4,7 @@ import type {
   MarketDimensionScore,
   MarketRegime,
   RiskTag,
+  StrongChainKind,
   UniverseAssetStatus,
   UserRiskProfile
 } from "@/data/types";
@@ -72,6 +73,17 @@ export function formatPercentChange(value: number): string {
 
 export function formatUniverseAssetStatus(status: UniverseAssetStatus): string {
   return UNIVERSE_ASSET_STATUS_LABEL[status] ?? status;
+}
+
+const STRONG_CHAIN_KIND_LABEL: Record<StrongChainKind, string> = {
+  CapitalDeposit: "资金沉淀型",
+  TradingActive: "交易活跃型",
+  AppRevenue: "应用收入型",
+  IncentiveDriven: "激励驱动型"
+};
+
+export function formatStrongChainKind(kind: StrongChainKind): string {
+  return STRONG_CHAIN_KIND_LABEL[kind] ?? kind;
 }
 
 export function percentChangeTone(value: number): string {

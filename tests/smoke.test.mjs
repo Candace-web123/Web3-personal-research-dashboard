@@ -15,21 +15,27 @@ const requiredPaths = [
   "data/narratives.ts",
   "data/ai-framework.ts",
   "data/index.ts",
+  "data/watchlist-universe.ts",
   "data/btc-cycle.ts",
   "data/market-environment.ts",
   "data/movers-top5.ts",
   "data/alpha-pool.ts",
   "data/position-advice.ts",
-  "data/watchlist-universe.ts",
+  "data/strong-signals.ts",
   "lib/research-overview.ts",
   "lib/v12-decision.ts",
+  "lib/strong-signals.ts",
   "components/dashboard/decision-card.tsx",
   "components/dashboard/btc-cycle-card.tsx",
   "components/dashboard/market-environment-card.tsx",
   "components/dashboard/movers-top5-card.tsx",
   "components/dashboard/alpha-pool-card.tsx",
   "components/dashboard/position-advice-card.tsx",
-  "components/dashboard/risk-warnings-card.tsx"
+  "components/dashboard/risk-warnings-card.tsx",
+  "components/dashboard/strong-chain-top.tsx",
+  "components/dashboard/strong-sector-top.tsx",
+  "components/dashboard/strong-protocol-top.tsx",
+  "components/dashboard/strong-signal-entry-layout.tsx"
 ];
 
 for (const relativePath of requiredPaths) {
@@ -59,7 +65,12 @@ const pageMustInclude = [
   "<PositionAdviceCard",
   "<RiskWarningsCard",
   "V1.2 每日投研",
-  "旧版研究模块 / 研究数据补充"
+  "旧版研究模块 / 研究数据补充",
+  "StrongChainTop",
+  "StrongSectorTop",
+  "StrongProtocolTop",
+  "今日资金与结构",
+  "资金流向与结构性强信号"
 ];
 
 for (const snippet of pageMustInclude) {
@@ -90,19 +101,16 @@ for (const snippet of pageMustNotInclude) {
 // --- V1.2 模块稳定标题（组件源码）---
 
 const moduleTitleChecks = [
-  ["components/dashboard/decision-card.tsx", "今日决策卡"],
+  ["components/dashboard/decision-card.tsx", "LABEL_DECISION_CARD"],
   ["components/dashboard/btc-cycle-card.tsx", "BTC 周期"],
   ["components/dashboard/market-environment-card.tsx", "市场环境"],
-  [
-    "components/dashboard/movers-top5-card.tsx",
-    "今日异动 Top 5"
-  ],
-  [
-    "components/dashboard/alpha-pool-card.tsx",
-    "Alpha 观察池 Top 10"
-  ],
+  ["components/dashboard/movers-top5-card.tsx", "今日异动 Top 5"],
+  ["components/dashboard/alpha-pool-card.tsx", "Alpha 观察池 Top 10"],
   ["components/dashboard/position-advice-card.tsx", "今日仓位建议"],
-  ["components/dashboard/risk-warnings-card.tsx", "风险预警"]
+  ["components/dashboard/risk-warnings-card.tsx", "风险预警"],
+  ["components/dashboard/strong-chain-top.tsx", "强链 Top 3"],
+  ["components/dashboard/strong-sector-top.tsx", "强赛道 Top 3"],
+  ["components/dashboard/strong-protocol-top.tsx", "强协议 Top 5"]
 ];
 
 for (const [relativePath, title] of moduleTitleChecks) {
@@ -113,6 +121,69 @@ for (const [relativePath, title] of moduleTitleChecks) {
     `${relativePath} must include title: ${title}`
   );
 }
+
+// --- TASK-022：强信号卡 aria-label ---
+
+const strongSignalsAriaLabels = [
+  { file: "components/dashboard/strong-chain-top.tsx", label: "强链 Top 3" },
+  { file: "components/dashboard/strong-sector-top.tsx", label: "强赛道 Top 3" },
+  { file: "components/dashboard/strong-protocol-top.tsx", label: "强协议 Top 5" }
+];
+
+for (const { file, label } of strongSignalsAriaLabels) {
+  const content = readText(file);
+  assert.match(
+    content,
+    new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    `${file} should have aria-label: ${label}`
+  );
+}
+
+// --- TASK-022：决策卡最强方向 ---
+
+const decisionCard = readText("components/dashboard/decision-card.tsx");
+assert.match(
+  decisionCard,
+  /LABEL_DECISION_CARD/,
+  "decision-card should define LABEL_DECISION_CARD"
+);
+assert.match(
+  decisionCard,
+  /aria-label=\{LABEL_DECISION_CARD\}/,
+  "decision-card should bind aria-label to LABEL_DECISION_CARD"
+);
+assert.match(
+  decisionCard,
+  /strongestDirection/,
+  "decision-card should show strongestDirection"
+);
+assert.match(
+  decisionCard,
+  /LABEL_STRONGEST|今日最强方向/,
+  "decision-card should include strongest direction label"
+);
+
+// --- TASK-022：lib/strong-signals 选择器 ---
+
+const strongSignalsLib = readText("lib/strong-signals.ts");
+assert.match(strongSignalsLib, /export function getStrongSignalsDailySnapshot/);
+assert.match(strongSignalsLib, /export function getStrongChainTop3/);
+assert.match(strongSignalsLib, /export function getStrongSectorTop3/);
+assert.match(strongSignalsLib, /export function getStrongProtocolTop5/);
+
+// --- TASK-022：data/strong-signals mock ---
+
+const strongSignalsData = readText("data/strong-signals.ts");
+assert.match(
+  strongSignalsData,
+  /STRONG_SIGNALS_DAILY_SNAPSHOT/,
+  "data/strong-signals.ts should export STRONG_SIGNALS_DAILY_SNAPSHOT"
+);
+assert.match(
+  strongSignalsData,
+  /strongestDirection/,
+  "data/strong-signals.ts should include strongestDirection"
+);
 
 // --- 异动卡：强调观察宇宙扫描，非 30 币全表 ---
 
@@ -126,6 +197,15 @@ assert.equal(
   moversCardSource.includes("WATCHLIST_UNIVERSE"),
   false,
   "movers-top5-card must not import full universe table"
+);
+
+// --- 观察宇宙规模（约 30 币）---
+
+const universe = readText("data/watchlist-universe.ts");
+const universeIdCount = (universe.match(/id:\s*"wl-/g) ?? []).length;
+assert.ok(
+  universeIdCount >= 25 && universeIdCount <= 32,
+  `watchlist universe should have ~30 entries, got ${universeIdCount}`
 );
 
 // --- 无新增 App 子路由 ---
@@ -158,4 +238,4 @@ assert.match(v12DecisionSource, /export function buildDecisionCardModel/);
 assert.match(v12DecisionSource, /export function getTopMovers5/);
 assert.match(v12DecisionSource, /export function getAlphaTop10/);
 
-console.log("smoke test passed (V1.2 MVP homepage checks).");
+console.log("smoke test passed (V1.2 MVP homepage + TASK-022 strong signals checks).");

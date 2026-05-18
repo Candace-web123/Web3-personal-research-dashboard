@@ -5,6 +5,9 @@ import { MarketEnvironmentCard } from "@/components/dashboard/market-environment
 import { MoversTop5Card } from "@/components/dashboard/movers-top5-card";
 import { PositionAdviceCard } from "@/components/dashboard/position-advice-card";
 import { RiskWarningsCard } from "@/components/dashboard/risk-warnings-card";
+import { StrongChainTop } from "@/components/dashboard/strong-chain-top";
+import { StrongProtocolTop } from "@/components/dashboard/strong-protocol-top";
+import { StrongSectorTop } from "@/components/dashboard/strong-sector-top";
 import {
   getAiFramework,
   getAlphaPool,
@@ -13,9 +16,15 @@ import {
   getMarketEnvironmentSnapshot,
   getMoversTop5,
   getNarratives,
-  getPositionAdviceSnapshot
+  getPositionAdviceSnapshot,
+  getStrongSignalsDailySnapshot
 } from "@/data";
 import { calculateResearchOverview } from "@/lib/research-overview";
+import {
+  getStrongChainTop3,
+  getStrongProtocolTop5,
+  getStrongSectorTop3
+} from "@/lib/strong-signals";
 import {
   buildDecisionCardModel,
   getAlphaTop10,
@@ -25,16 +34,22 @@ import {
 export default function Home() {
   const btcCycleSnapshot = getBtcCycleSnapshot();
   const marketEnvironmentSnapshot = getMarketEnvironmentSnapshot();
+  const strongSignalsSnapshot = getStrongSignalsDailySnapshot();
   const moversTop5 = getTopMovers5(getMoversTop5());
   const alphaTop10 = getAlphaTop10(getAlphaPool());
   const positionAdviceSnapshot = getPositionAdviceSnapshot();
+
+  const strongChainTop3 = getStrongChainTop3(strongSignalsSnapshot.chains);
+  const strongSectorTop3 = getStrongSectorTop3(strongSignalsSnapshot.sectors);
+  const strongProtocolTop5 = getStrongProtocolTop5(strongSignalsSnapshot.protocols);
 
   const decisionModel = buildDecisionCardModel({
     btcCycleSnapshot,
     marketEnvironmentSnapshot,
     moversTop5,
     alphaTop10,
-    positionAdviceSnapshot
+    positionAdviceSnapshot,
+    strongSignalsSnapshot
   });
 
   const assets = getAssets();
@@ -50,7 +65,7 @@ export default function Home() {
         </p>
         <h1 className="mt-1 text-2xl font-semibold">Web3 个人投研工作台</h1>
         <p className="mt-2 text-sm leading-6 text-zinc-600">
-          先判断环境与 BTC 周期，再跟踪异动与 Alpha 观察池；以下为决策辅助信息，非投资建议。
+          先判断环境与 BTC 周期，再跟踪资金流向、异动与 Alpha 观察池；以下为决策辅助信息，非投资建议。
         </p>
       </header>
 
@@ -59,6 +74,28 @@ export default function Home() {
       <BtcCycleCard snapshot={btcCycleSnapshot} />
 
       <MarketEnvironmentCard snapshot={marketEnvironmentSnapshot} />
+
+      <section
+        className="flex flex-col gap-4"
+        aria-label="资金流向与结构性强信号"
+      >
+        <header className="rounded-lg border border-zinc-200 bg-white p-4">
+          <h2 className="text-lg font-semibold text-zinc-900">今日资金与结构</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-800">
+            {strongSignalsSnapshot.sectionHeadline}
+          </p>
+          {strongSignalsSnapshot.sectionRiskNote?.trim() ? (
+            <p className="mt-3 rounded-md border border-amber-100 bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-950">
+              <span className="font-medium">区块风险提示：</span>
+              {strongSignalsSnapshot.sectionRiskNote}
+            </p>
+          ) : null}
+        </header>
+
+        <StrongChainTop entries={strongChainTop3} />
+        <StrongSectorTop entries={strongSectorTop3} />
+        <StrongProtocolTop entries={strongProtocolTop5} />
+      </section>
 
       <MoversTop5Card movers={moversTop5} />
 
