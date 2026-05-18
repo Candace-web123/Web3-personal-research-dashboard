@@ -304,3 +304,25 @@ export type PositionAdviceSnapshot = {
   /** 可选：平衡型区间（默认 UI 不展示） */
   balancedAllocation?: AllocationRange;
 };
+
+// --- V1.2 今日决策卡 ViewModel（TASK-010）---
+
+/** PRD 19.2 — 首页今日决策卡展示模型（纯数据，无 React 依赖） */
+export type DecisionCardViewModel = {
+  asOf: string;
+  headline: string;
+  marketRegime: MarketRegime;
+  marketScore: number;
+  btcCycleStage: string;
+  btcActionBias: string;
+  supportsAltAlphaObservation: boolean;
+  ethAndMainstreamSummary: string;
+  stablecoinLiquiditySummary: string;
+  topMoverSymbols: string[];
+  alphaFocusSymbols: string[];
+  suitableToAddPosition: boolean;
+  observationOnly: boolean;
+  topRisks: RiskTag[];
+  conclusion: string;
+  riskReminder: string;
+};
