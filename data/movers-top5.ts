@@ -1,4 +1,3 @@
-import type { UniverseAssetStatus } from "./types";
 import { UniverseAssetStatus } from "./types";
 
 /** 当日主流币异动 Top 5 单条记录（展示字段，与 `WATCHLIST_UNIVERSE` 通过 assetId 关联） */
