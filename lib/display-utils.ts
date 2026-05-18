@@ -4,7 +4,8 @@ import type {
   MarketDimensionScore,
   MarketRegime,
   RiskTag,
-  UniverseAssetStatus
+  UniverseAssetStatus,
+  UserRiskProfile
 } from "@/data/types";
 
 export const MARKET_REGIME_LABEL: Record<MarketRegime, string> = {
@@ -117,4 +118,30 @@ export function riskPriorityTone(priority: RiskTag["priority"]): string {
     default:
       return "border-zinc-200 bg-zinc-50 text-zinc-700";
   }
+}
+
+const USER_RISK_PROFILE_LABEL: Record<UserRiskProfile, string> = {
+  Conservative: "保守型",
+  Balanced: "平衡型",
+  Aggressive: "进攻型"
+};
+
+export function formatUserRiskProfile(profile: UserRiskProfile): string {
+  return USER_RISK_PROFILE_LABEL[profile] ?? profile;
+}
+
+const RISK_PRIORITY_RANK: Record<RiskTag["priority"], number> = {
+  P0: 0,
+  P1: 1,
+  P2: 2,
+  P3: 3
+};
+
+/** 按 P0 → P3 排序（不修改原数组） */
+export function sortRisksByPriority(
+  risks: readonly RiskTag[]
+): RiskTag[] {
+  return [...risks].sort(
+    (a, b) => RISK_PRIORITY_RANK[a.priority] - RISK_PRIORITY_RANK[b.priority]
+  );
 }
