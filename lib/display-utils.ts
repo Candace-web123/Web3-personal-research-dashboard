@@ -1,4 +1,8 @@
-import type { MarketDimensionScore, MarketRegime } from "@/data/types";
+import type {
+  MarketDimensionScore,
+  MarketRegime,
+  UniverseAssetStatus
+} from "@/data/types";
 
 export const MARKET_REGIME_LABEL: Record<MarketRegime, string> = {
   StrongRiskOn: "强进攻",
@@ -46,4 +50,28 @@ export function dimensionScoreTone(score: MarketDimensionScore): string {
     return "border-rose-200 bg-rose-50 text-rose-900";
   }
   return "border-zinc-200 bg-zinc-50 text-zinc-700";
+}
+
+const UNIVERSE_ASSET_STATUS_LABEL: Record<UniverseAssetStatus, string> = {
+  Normal: "普通观察",
+  Moving: "异动观察",
+  AlphaCandidate: "Alpha 候选",
+  DeepDive: "重点深挖",
+  RiskElevated: "风险升高",
+  Removed: "已移除"
+};
+
+export function formatPercentChange(value: number): string {
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%`;
+}
+
+export function formatUniverseAssetStatus(status: UniverseAssetStatus): string {
+  return UNIVERSE_ASSET_STATUS_LABEL[status] ?? status;
+}
+
+export function percentChangeTone(value: number): string {
+  if (value > 0) return "text-emerald-700";
+  if (value < 0) return "text-rose-700";
+  return "text-zinc-600";
 }
