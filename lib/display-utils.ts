@@ -1,4 +1,4 @@
-import type { MarketRegime } from "@/data/types";
+import type { MarketDimensionScore, MarketRegime } from "@/data/types";
 
 export const MARKET_REGIME_LABEL: Record<MarketRegime, string> = {
   StrongRiskOn: "强进攻",
@@ -31,4 +31,19 @@ export function formatMarketScore(score: number): string {
 export function formatSymbolList(symbols: readonly string[]): string {
   if (symbols.length === 0) return "—";
   return symbols.join("、");
+}
+
+export function formatDimensionScore(score: MarketDimensionScore): string {
+  return score > 0 ? `+${score}` : String(score);
+}
+
+/** 五维分弱色编码：偏多 / 中性 / 偏空 */
+export function dimensionScoreTone(score: MarketDimensionScore): string {
+  if (score > 0) {
+    return "border-emerald-200 bg-emerald-50 text-emerald-900";
+  }
+  if (score < 0) {
+    return "border-rose-200 bg-rose-50 text-rose-900";
+  }
+  return "border-zinc-200 bg-zinc-50 text-zinc-700";
 }
