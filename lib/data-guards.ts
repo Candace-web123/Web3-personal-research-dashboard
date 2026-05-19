@@ -4,12 +4,15 @@ import { MARKET_ENVIRONMENT_SNAPSHOT } from "@/data/market-environment";
 import { MOVERS_TOP5 } from "@/data/movers-top5";
 import { POSITION_ADVICE_SNAPSHOT } from "@/data/position-advice";
 import type { AlphaPoolEntry, WatchlistUniverseEntry } from "@/data/types";
+import { DATA_PROVENANCE_DAILY_SNAPSHOT } from "@/data/data-provenance";
 import { STRONG_SIGNALS_DAILY_SNAPSHOT } from "@/data/strong-signals";
 import type {
+  DataProvenanceDailySnapshot,
   StrongChainEntry,
   StrongProtocolEntry,
   StrongSectorEntry
 } from "@/data/types";
+import { DataProvenanceCardId } from "@/data/types";
 import { WATCHLIST_UNIVERSE } from "@/data/watchlist-universe";
 
 const STRONG_CHAIN_TOP = 3;
@@ -107,7 +110,8 @@ export function assertV12SnapshotsAsOfAligned(): void {
     BTC_CYCLE_SNAPSHOT.asOf,
     MARKET_ENVIRONMENT_SNAPSHOT.asOf,
     POSITION_ADVICE_SNAPSHOT.asOf,
-    STRONG_SIGNALS_DAILY_SNAPSHOT.asOf
+    STRONG_SIGNALS_DAILY_SNAPSHOT.asOf,
+    DATA_PROVENANCE_DAILY_SNAPSHOT.asOf
   ]);
   assertInvariant(
     asOfValues.size === 1,
@@ -166,11 +170,42 @@ export function assertStrongSignals(
   );
 }
 
+/** 校验数据可信度 mock：三卡齐全、指标非空、asOf 对齐 */
+export function assertDataProvenance(
+  snapshot: DataProvenanceDailySnapshot = DATA_PROVENANCE_DAILY_SNAPSHOT
+): void {
+  if (!isDevAssertionEnabled()) return;
+
+  const cardIds = Object.values(DataProvenanceCardId);
+  for (const cardId of cardIds) {
+    const summary = snapshot.cards[cardId];
+    assertInvariant(Boolean(summary), `data provenance card missing: ${cardId}`);
+    assertInvariant(
+      summary.metrics.length > 0,
+      `data provenance metrics must be non-empty for ${cardId}`
+    );
+    assertInvariant(
+      summary.displayUpdatedAtUtc.trim().length > 0,
+      `displayUpdatedAtUtc must be set for ${cardId}`
+    );
+    assertInvariant(
+      summary.primarySourcesSummary.trim().length > 0,
+      `primarySourcesSummary must be set for ${cardId}`
+    );
+  }
+
+  assertInvariant(
+    snapshot.asOf === BTC_CYCLE_SNAPSHOT.asOf,
+    `DATA_PROVENANCE asOf must match BTC_CYCLE_SNAPSHOT.asOf (${BTC_CYCLE_SNAPSHOT.asOf})`
+  );
+}
+
 /** 一次性运行全部 V1.2 mock 轻量校验（dev / test 用） */
 export function assertV12MockData(): void {
   assertWatchlistUniverse();
   assertMoversTop5();
   assertAlphaPool();
   assertStrongSignals();
+  assertDataProvenance();
   assertV12SnapshotsAsOfAligned();
 }

@@ -1,4 +1,5 @@
-import type { DecisionCardViewModel } from "@/data/types";
+import { DataProvenanceFooter } from "@/components/dashboard/data-provenance-footer";
+import type { CardDataProvenanceSummary, DecisionCardViewModel } from "@/data/types";
 import {
   formatBtcCycleStage,
   formatMarketRegime,
@@ -8,6 +9,7 @@ import {
 
 export type DecisionCardProps = {
   model: DecisionCardViewModel;
+  dataProvenance?: CardDataProvenanceSummary;
 };
 
 const LABEL_DECISION_CARD = "\u4eca\u65e5\u51b3\u7b56\u5361";
@@ -33,7 +35,7 @@ function SummaryBlock({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function DecisionCard({ model }: DecisionCardProps) {
+export function DecisionCard({ model, dataProvenance }: DecisionCardProps) {
   const ethSummary = model.ethAndMainstreamSummary.trim() || "\u2014";
   const stableSummary = model.stablecoinLiquiditySummary.trim() || "\u2014";
 
@@ -146,11 +148,13 @@ export function DecisionCard({ model }: DecisionCardProps) {
             {formatSymbolList(model.alphaFocusSymbols)}
           </dd>
         </div>
-        <div className="rounded-md border border-zinc-200 bg-white p-3 sm:col-span-2">
+        <section className="rounded-md border border-zinc-200 bg-white p-3 sm:col-span-2">
           <dt className="text-xs font-medium text-zinc-500">{LABEL_ALPHA}</dt>
           <dd className="mt-1 text-sm text-zinc-800">{alphaObservationLabel}</dd>
-        </div>
+        </section>
       </dl>
+
+      {dataProvenance ? <DataProvenanceFooter summary={dataProvenance} /> : null}
     </section>
   );
 }

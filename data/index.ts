@@ -6,6 +6,7 @@ import { MARKET_ENVIRONMENT_SNAPSHOT } from "./market-environment";
 import { MOVERS_TOP5 } from "./movers-top5";
 import { narratives } from "./narratives";
 import { POSITION_ADVICE_SNAPSHOT } from "./position-advice";
+import { DATA_PROVENANCE_DAILY_SNAPSHOT } from "./data-provenance";
 import { STRONG_SIGNALS_DAILY_SNAPSHOT } from "./strong-signals";
 import { WATCHLIST_UNIVERSE } from "./watchlist-universe";
 import type { AiFramework, Asset, Narrative } from "./types";
@@ -54,6 +55,10 @@ export function getStrongSignalsDailySnapshot() {
   return STRONG_SIGNALS_DAILY_SNAPSHOT;
 }
 
+export function getDataProvenanceDailySnapshot() {
+  return DATA_PROVENANCE_DAILY_SNAPSHOT;
+}
+
 /** V1.2 全部快照聚合（单一入口，供 lib / 页面消费） */
 export function getV12MockSnapshots() {
   return {
@@ -63,7 +68,8 @@ export function getV12MockSnapshots() {
     marketEnvironment: MARKET_ENVIRONMENT_SNAPSHOT,
     alphaPool: ALPHA_POOL,
     positionAdvice: POSITION_ADVICE_SNAPSHOT,
-    strongSignals: STRONG_SIGNALS_DAILY_SNAPSHOT
+    strongSignals: STRONG_SIGNALS_DAILY_SNAPSHOT,
+    dataProvenance: DATA_PROVENANCE_DAILY_SNAPSHOT
   } as const;
 }
 
@@ -77,6 +83,7 @@ export { MOVERS_TOP5 } from "./movers-top5";
 export type { MoverTop5Entry } from "./movers-top5";
 export { WATCHLIST_UNIVERSE } from "./watchlist-universe";
 export { STRONG_SIGNALS_DAILY_SNAPSHOT } from "./strong-signals";
+export { DATA_PROVENANCE_DAILY_SNAPSHOT } from "./data-provenance";
 
 // --- 类型与枚举 ---
 
@@ -99,7 +106,10 @@ export type {
   StrongSectorEntry,
   StrongSignalMetric,
   StrongSignalsDailySnapshot,
-  WatchlistUniverseEntry
+  WatchlistUniverseEntry,
+  CardDataProvenanceSummary,
+  DataProvenance,
+  DataProvenanceDailySnapshot
 } from "./types";
 export type { MarketDimensionScore } from "./types";
 export {
@@ -114,5 +124,8 @@ export {
   StrongChainKind,
   UniverseAssetStatus,
   UserRiskProfile,
-  WatchlistTier
+  WatchlistTier,
+  DataProvenanceCardId,
+  DataFreshnessStatus,
+  DataUpdateFrequency
 } from "./types";

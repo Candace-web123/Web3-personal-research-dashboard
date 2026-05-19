@@ -748,11 +748,29 @@
 
 ---
 
-## 2.2 守边界版后续任务（TASK-019～023，未开始）
+## 2.2 TASK-019：数据可信度（已完成）
+
+**阶段：** Phase 8｜**优先级：** P1｜**状态：** 已完成
+
+**实现位置：**
+
+- `data/types.ts`：`DataProvenance`、`CardDataProvenanceSummary`、`DataFreshnessStatus`
+- `data/data-provenance.ts`：`DATA_PROVENANCE_DAILY_SNAPSHOT`（决策 / BTC / 市场环境三卡）
+- `lib/data-provenance.ts`：`getCardDataProvenance`、`resolveOverallDataStatus`
+- `lib/display-utils.ts`：状态文案与色板
+- `components/dashboard/data-provenance-footer.tsx`：卡片底部「数据时间 + 状态 + 来源明细」
+- `decision-card` / `btc-cycle-card` / `market-environment-card`：接入 `dataProvenance` prop
+- `lib/data-guards.ts`：`assertDataProvenance`
+
+**验收：** 三卡底部可见数据时间与状态；延迟 / 口径冲突有黄色 / 橙色提示；mock 不接 API。
+
+---
+
+## 2.3 守边界版后续任务（TASK-020～023，未开始）
 
 | 编号 | 名称 | 优先级 | 说明 |
 |------|------|--------|------|
-| TASK-019 | 数据可信度 mock + 展示 | P1 | PRD 13.5、25.4 |
+| TASK-019 | （已完成，见 2.2） | — | — |
 | TASK-020 | 代币传导结构化（Alpha） | P1 | PRD 9.2.1 |
 | TASK-021 | 链下尽调清单 | P1 | PRD 13.6、24.2.1 |
 | TASK-022 | （已完成，见 2.1） | — | — |
@@ -802,21 +820,21 @@
 
 **下一步开发（二选一）：**
 
-1. **TASK-019** — 数据可信度 mock + 卡片展示（守边界 P1）  
-2. **TASK-024** — 墨刀首页 UI 设计稿（可与 019 并行，不阻塞）
+1. **TASK-020** — 代币传导结构化（Alpha 卡，PRD 9.2.1）  
+2. **TASK-024** — 墨刀首页 UI 设计稿（建议 TASK-020/021/023 功能齐后再做整体稿）
 
-**墨刀设计前无需再等代码**，但稿面请预留：今日复盘（TASK-023）、数据时间戳（TASK-019）、二期传导/尽调字段。
+**墨刀稿面已具备：** 三卡底部数据时间 / 状态 / 来源折叠明细。仍须预留：今日复盘（TASK-023）、传导 / 尽调字段（020/021）。
 
-### 下一轮可直接复制给 Cursor 的执行 Prompt（TASK-019）
+### 下一轮可直接复制给 Cursor 的执行 Prompt（TASK-020）
 
 ```text
-请只完成 docs/TASKS.md 中的 TASK-019：数据可信度 mock 与卡片展示。
+请只完成 docs/TASKS.md 中的 TASK-020：Alpha 代币传导结构化。
 
-约束：不接 API；不新增子路由；mock 放 data/；遵循 PRD 13.5、21.5。
+约束：不接 API；不新增子路由；扩展 data/types 与 alpha-pool mock；遵循 PRD 9.2.1。
 
-交付：DataProvenance 类型 + data/data-provenance.ts + 决策/BTC/市场环境卡底部展示数据时间与状态。
+交付：传导类型 / 强度 / 依据字段 + Alpha 卡展示；冒烟测试更新。
 
-验收：对照 TASK-019（启动时按 2.2 表补全详细小节）与附录 A。
+验收：对照 TASK-020 与附录 A。
 ```
 
 ---
@@ -849,7 +867,7 @@
 | 仓位建议 | 保守型区间 + 是否新增仓位 | [x] |
 | 首页顺序 | 异动在强链/赛道/协议之前（PRD 12.1） | [x] |
 | 旧版模块折叠 | 底部 `<details>`，不占首屏 | [x] |
-| 数据可信度 | 来源/时间/状态（TASK-019） | [ ] |
+| 数据可信度 | 来源/时间/状态（TASK-019） | [x] |
 | 代币传导结构化 | 类型/强度/依据（TASK-020） | [ ] |
 | 链下尽调 | 重点跟踪项目清单（TASK-021） | [ ] |
 | 每日复盘 | 3～5 字段可记录（TASK-023） | [ ] |
