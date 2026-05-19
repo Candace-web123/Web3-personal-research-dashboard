@@ -75,6 +75,8 @@ export default function Home() {
 
       <MarketEnvironmentCard snapshot={marketEnvironmentSnapshot} />
 
+      <MoversTop5Card movers={moversTop5} />
+
       <section
         className="flex flex-col gap-4"
         aria-label="资金流向与结构性强信号"
@@ -96,8 +98,6 @@ export default function Home() {
         <StrongSectorTop entries={strongSectorTop3} />
         <StrongProtocolTop entries={strongProtocolTop5} />
       </section>
-
-      <MoversTop5Card movers={moversTop5} />
 
       <AlphaPoolCard entries={alphaTop10} />
 
