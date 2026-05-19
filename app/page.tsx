@@ -1,4 +1,5 @@
 import { AlphaPoolCard } from "@/components/dashboard/alpha-pool-card";
+import { DailyReviewCard } from "@/components/dashboard/daily-review-card";
 import { BtcCycleCard } from "@/components/dashboard/btc-cycle-card";
 import { DecisionCard } from "@/components/dashboard/decision-card";
 import { MarketEnvironmentCard } from "@/components/dashboard/market-environment-card";
@@ -18,7 +19,8 @@ import {
   getNarratives,
   getPositionAdviceSnapshot,
   getStrongSignalsDailySnapshot,
-  getDataProvenanceDailySnapshot
+  getDataProvenanceDailySnapshot,
+  getDailyReviewSnapshot
 } from "@/data";
 import { DataProvenanceCardId } from "@/data/types";
 import { getCardDataProvenance } from "@/lib/data-provenance";
@@ -42,6 +44,7 @@ export default function Home() {
   const moversTop5 = getTopMovers5(getMoversTop5());
   const alphaTop10 = getAlphaTop10(getAlphaPool());
   const positionAdviceSnapshot = getPositionAdviceSnapshot();
+  const dailyReviewSnapshot = getDailyReviewSnapshot();
 
   const strongChainTop3 = getStrongChainTop3(strongSignalsSnapshot.chains);
   const strongSectorTop3 = getStrongSectorTop3(strongSignalsSnapshot.sectors);
@@ -130,6 +133,8 @@ export default function Home() {
           description="综合市场环境、Alpha 观察池与决策卡聚合的风险提示；请结合仓位纪律独立判断。"
         />
       </div>
+
+      <DailyReviewCard snapshot={dailyReviewSnapshot} />
 
       <details className="rounded-lg border border-zinc-300 bg-zinc-100/80">
         <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-zinc-800 marker:content-none [&::-webkit-details-marker]:hidden">

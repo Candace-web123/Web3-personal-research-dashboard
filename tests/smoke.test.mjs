@@ -23,6 +23,8 @@ const requiredPaths = [
   "data/position-advice.ts",
   "data/strong-signals.ts",
   "data/data-provenance.ts",
+  "data/daily-review.ts",
+  "components/dashboard/daily-review-card.tsx",
   "lib/data-provenance.ts",
   "lib/token-transmission.ts",
   "components/dashboard/data-provenance-footer.tsx",
@@ -78,7 +80,10 @@ const pageMustInclude = [
   "getDataProvenanceDailySnapshot",
   "getCardDataProvenance",
   "DataProvenanceCardId",
-  "dataProvenance={"
+  "dataProvenance={",
+  "getDailyReviewSnapshot",
+  "<DailyReviewCard",
+  "dailyReviewSnapshot"
 ];
 
 for (const snippet of pageMustInclude) {
@@ -324,6 +329,22 @@ assert.match(dataGuards, /export function assertAlphaOffchainDueDiligence/);
 assert.equal(pageSource.includes("fetch("), false, "app/page.tsx must not use fetch");
 assert.equal(pageSource.includes("axios"), false, "app/page.tsx must not use axios");
 
+// --- TASK-023：每日复盘 ---
+
+assert.ok(existsSync(path.join(root, "data/daily-review.ts")));
+assert.ok(existsSync(path.join(root, "components/dashboard/daily-review-card.tsx")));
+
+const dailyReviewData = readText("data/daily-review.ts");
+assert.match(dailyReviewData, /DAILY_REVIEW_SNAPSHOT/);
+
+assert.match(typesSource, /DailyReviewSnapshot/);
+
+const dailyReviewCard = readText("components/dashboard/daily-review-card.tsx");
+assert.match(dailyReviewCard, /DailyReviewCard/);
+assert.match(dailyReviewCard, /\\u6bcf\\u65e5\\u590d\\u76d8/);
+
+assert.match(dataGuards, /export function assertDailyReviewSnapshot/);
+
 console.log(
-  "smoke test passed (V1.2 MVP + TASK-019/020/021 offchain due diligence)."
+  "smoke test passed (V1.2 MVP + TASK-019/020/021/023 daily review)."
 );
