@@ -1,4 +1,11 @@
-import type { AlphaPoolEntry, RiskTag, TokenTransmissionJudgement } from "@/data/types";
+import type {
+  AlphaPoolEntry,
+  OffchainDueDiligence,
+  OffchainDueDiligenceRiskLevel,
+  OffchainDueDiligenceStatus,
+  RiskTag,
+  TokenTransmissionJudgement
+} from "@/data/types";
 import {
   alphaGradeTone,
   formatAlphaLifecycleState,
@@ -17,6 +24,36 @@ export type AlphaPoolCardProps = {
 
 const MAX_ENTRIES = 10;
 const MAX_RISKS_SHOWN = 3;
+const MAX_DD_FINDINGS = 3;
+const MAX_DD_QUESTIONS = 2;
+
+const DD_STATUS_LABEL: Record<OffchainDueDiligenceStatus, string> = {
+  Confirmed: "\u5df2\u786e\u8ba4",
+  PartiallyConfirmed: "\u90e8\u5206\u786e\u8ba4",
+  Unclear: "\u4fe1\u606f\u4e0d\u8db3",
+  Risky: "\u98ce\u9669\u8f83\u9ad8",
+  NotChecked: "\u5f85\u9a8c\u8bc1"
+};
+
+const DD_RISK_LABEL: Record<OffchainDueDiligenceRiskLevel, string> = {
+  Low: "\u4f4e",
+  Medium: "\u4e2d",
+  High: "\u9ad8",
+  Unknown: "\u672a\u77e5"
+};
+
+function ddRiskTone(level: OffchainDueDiligenceRiskLevel): string {
+  switch (level) {
+    case "Low":
+      return "border-emerald-200 bg-emerald-50 text-emerald-900";
+    case "Medium":
+      return "border-amber-200 bg-amber-50 text-amber-900";
+    case "High":
+      return "border-rose-200 bg-rose-50 text-rose-900";
+    default:
+      return "border-zinc-200 bg-zinc-100 text-zinc-700";
+  }
+}
 
 function displayOrDash(value: string | undefined): string {
   const trimmed = value?.trim();
@@ -67,6 +104,61 @@ function TokenTransmissionBlock({
       )}
       {judgement.note?.trim() ? (
         <p className="mt-2 text-xs leading-5 text-teal-950">{judgement.note}</p>
+      ) : null}
+    </section>
+  );
+}
+
+function OffchainDueDiligenceBlock({ diligence }: { diligence: OffchainDueDiligence }) {
+  const findings = diligence.keyFindings.slice(0, MAX_DD_FINDINGS);
+  const questions = diligence.unresolvedQuestions.slice(0, MAX_DD_QUESTIONS);
+
+  const dimensionRows: { label: string; status: OffchainDueDiligenceStatus }[] = [
+    { label: "\u56e2\u961f\u80cc\u666f", status: diligence.teamBackgroundStatus },
+    { label: "\u878d\u8d44\u60c5\u51b5", status: diligence.financingStatus },
+    { label: "\u793e\u533a\u6d3b\u8dc3", status: diligence.communityActivityStatus },
+    { label: "\u4ea7\u54c1\u8fdb\u5c55", status: diligence.productProgressStatus },
+    { label: "\u89e3\u9501\u4f9b\u7ed9", status: diligence.tokenUnlockStatus }
+  ];
+
+  return (
+    <section className="rounded-md border border-violet-100 bg-violet-50/50 px-3 py-2">
+      <header className="flex flex-wrap items-center gap-2">
+        <p className="text-xs font-semibold text-violet-900">
+          {"\u94fe\u4e0b\u5c3d\u8c03\uff08PRD 13.6\uff09"}
+        </p>
+        <span
+          className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${ddRiskTone(diligence.riskLevel)}`}
+        >
+          {"\u98ce\u9669"}{DD_RISK_LABEL[diligence.riskLevel]}
+        </span>
+        <time className="text-[11px] text-violet-700" dateTime={diligence.lastReviewedAt}>
+          {"\u590d\u6838 "}
+          {diligence.lastReviewedAt}
+        </time>
+      </header>
+      <dl className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] text-violet-950 sm:grid-cols-3">
+        {dimensionRows.map((row) => (
+          <div key={row.label}>
+            <dt className="text-violet-600">{row.label}</dt>
+            <dd className="font-medium">{DD_STATUS_LABEL[row.status]}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 text-xs font-medium text-violet-800">{"\u5173\u952e\u53d1\u73b0"}</p>
+      <ul className="mt-1 list-inside list-disc text-xs leading-5 text-violet-950">
+        {findings.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+      <p className="mt-2 text-xs font-medium text-violet-800">{"\u5f85\u786e\u8ba4\u95ee\u9898"}</p>
+      <ul className="mt-1 list-inside list-disc text-xs leading-5 text-violet-950">
+        {questions.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+      {diligence.note?.trim() ? (
+        <p className="mt-2 text-xs leading-5 text-violet-800">{diligence.note}</p>
       ) : null}
     </section>
   );
@@ -131,7 +223,7 @@ function AlphaEntryRow({ entry, rank }: AlphaEntryRowProps) {
       <details className="group mt-3 rounded-md border border-zinc-100 bg-zinc-50">
         <summary className="cursor-pointer list-none px-3 py-2 text-xs font-medium text-zinc-600 marker:content-none [&::-webkit-details-marker]:hidden">
           <span className="flex items-center justify-between gap-2">
-            辅助说明（异动 / 催化 / 风险）
+            辅助说明（异动 / 尽调 / 风险）
             <span className="text-zinc-400 group-open:rotate-180">▼</span>
           </span>
         </summary>
@@ -144,6 +236,9 @@ function AlphaEntryRow({ entry, rank }: AlphaEntryRowProps) {
             <span className="font-medium text-zinc-600">催化：</span>
             {displayOrDash(entry.catalyst)}
           </p>
+
+          <OffchainDueDiligenceBlock diligence={entry.offchainDueDiligence} />
+
           <p>
             <span className="font-medium text-zinc-600">最大风险：</span>
             {displayOrDash(entry.maxRisk)}

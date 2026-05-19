@@ -271,6 +271,44 @@ export type TokenTransmissionJudgement = {
   note?: string;
 };
 
+// --- V1.2 链下尽调（TASK-021 · PRD 13.6）---
+
+/** 单维度尽调状态（人工核对，非链上自动结论） */
+export const OffchainDueDiligenceStatus = {
+  Confirmed: "Confirmed",
+  PartiallyConfirmed: "PartiallyConfirmed",
+  Unclear: "Unclear",
+  Risky: "Risky",
+  NotChecked: "NotChecked"
+} as const;
+export type OffchainDueDiligenceStatus =
+  (typeof OffchainDueDiligenceStatus)[keyof typeof OffchainDueDiligenceStatus];
+
+/** 链下尽调综合风险等级 */
+export const OffchainDueDiligenceRiskLevel = {
+  Low: "Low",
+  Medium: "Medium",
+  High: "High",
+  Unknown: "Unknown"
+} as const;
+export type OffchainDueDiligenceRiskLevel =
+  (typeof OffchainDueDiligenceRiskLevel)[keyof typeof OffchainDueDiligenceRiskLevel];
+
+/** PRD 13.6 — 项目链下尽调（MVP mock，供是否继续深挖参考） */
+export type OffchainDueDiligence = {
+  teamBackgroundStatus: OffchainDueDiligenceStatus;
+  financingStatus: OffchainDueDiligenceStatus;
+  communityActivityStatus: OffchainDueDiligenceStatus;
+  productProgressStatus: OffchainDueDiligenceStatus;
+  tokenUnlockStatus: OffchainDueDiligenceStatus;
+  keyFindings: string[];
+  unresolvedQuestions: string[];
+  riskLevel: OffchainDueDiligenceRiskLevel;
+  /** 最近一次人工复核日期（YYYY-MM-DD） */
+  lastReviewedAt: string;
+  note?: string;
+};
+
 // --- V1.2 Alpha 观察池（TASK-007）---
 
 /**
@@ -297,6 +335,8 @@ export type AlphaPoolEntry = {
   lifecycle: AlphaLifecycleState;
   nextVerification: string;
   holderNotes?: string;
+  /** PRD 13.6 — 链下尽调结构化记录 */
+  offchainDueDiligence: OffchainDueDiligence;
   risks: RiskTag[];
 };
 
