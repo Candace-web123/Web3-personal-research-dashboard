@@ -1,8 +1,10 @@
-import type { BtcCycleSnapshot } from "@/data/types";
+import { DataProvenanceFooter } from "@/components/dashboard/data-provenance-footer";
+import type { BtcCycleSnapshot, CardDataProvenanceSummary } from "@/data/types";
 import { formatBtcCycleStage } from "@/lib/display-utils";
 
 export type BtcCycleCardProps = {
   snapshot: BtcCycleSnapshot;
+  dataProvenance?: CardDataProvenanceSummary;
 };
 
 function displayOrDash(value: string | undefined): string {
@@ -36,7 +38,7 @@ function MetricGroup({ title, items }: MetricGroupProps) {
   );
 }
 
-export function BtcCycleCard({ snapshot }: BtcCycleCardProps) {
+export function BtcCycleCard({ snapshot, dataProvenance }: BtcCycleCardProps) {
   const alphaObservationHint = snapshot.supportsAltAlphaObservation
     ? "可观察山寨 Alpha（观察池，非买入清单）"
     : "暂不适合扩展山寨 Alpha 观察";
@@ -118,6 +120,8 @@ export function BtcCycleCard({ snapshot }: BtcCycleCardProps) {
           </ul>
         </div>
       ) : null}
+
+      {dataProvenance ? <DataProvenanceFooter summary={dataProvenance} /> : null}
     </section>
   );
 }

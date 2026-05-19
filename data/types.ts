@@ -390,6 +390,86 @@ export type StrongSignalsDailySnapshot = {
 
 // --- V1.2 今日决策卡 ViewModel（TASK-010）---
 
+// --- V1.2 数据可信度（TASK-019 · PRD 13.5、21.5）---
+
+/** PRD 21.5 — 数据新鲜度 / 可信度状态 */
+export const DataFreshnessStatus = {
+  /** 正常：在预期更新时间内 */
+  Normal: "Normal",
+  /** 延迟：超过预期 1.5 倍 */
+  Delayed: "Delayed",
+  /** 不可用：超过预期 3 倍或 API 失败 */
+  Unavailable: "Unavailable",
+  /** 口径冲突：主备源差异 >10% */
+  SourceConflict: "SourceConflict",
+  /** 手动覆盖：用户人工修正 */
+  ManualOverride: "ManualOverride"
+} as const;
+export type DataFreshnessStatus =
+  (typeof DataFreshnessStatus)[keyof typeof DataFreshnessStatus];
+
+/** 预期更新频率（mock 标注用） */
+export const DataUpdateFrequency = {
+  Daily: "daily",
+  Weekly: "weekly",
+  EventTriggered: "event"
+} as const;
+export type DataUpdateFrequency =
+  (typeof DataUpdateFrequency)[keyof typeof DataUpdateFrequency];
+
+/** PRD 13.5 — 单条关键指标的数据可信度记录 */
+export type DataProvenance = {
+  /** 指标名称（如 BTC 价格、DeFi TVL） */
+  metricName: string;
+  /** 当前数值（展示 / 评分用，mock 文案） */
+  currentValue: string;
+  /** 主数据源 */
+  primarySource: string;
+  /** 备用数据源（可选） */
+  fallbackSource?: string;
+  /** 数据更新时间（YYYY-MM-DD HH:mm UTC） */
+  updatedAtUtc: string;
+  /** 预期更新频率 */
+  expectedFrequency: DataUpdateFrequency;
+  /** 数据状态 */
+  status: DataFreshnessStatus;
+  /** 是否参与评分 */
+  participatesInScoring: boolean;
+  /** 异常原因（延迟 / 冲突 / 不可用等） */
+  anomalyReason?: string;
+  /** 人工覆盖原因（status = ManualOverride 时必填） */
+  manualOverrideReason?: string;
+};
+
+/** 首页关键卡片的数据可信度摘要（卡片底部展示） */
+export const DataProvenanceCardId = {
+  Decision: "decision",
+  BtcCycle: "btc-cycle",
+  MarketEnvironment: "market-environment"
+} as const;
+export type DataProvenanceCardId =
+  (typeof DataProvenanceCardId)[keyof typeof DataProvenanceCardId];
+
+export type CardDataProvenanceSummary = {
+  cardId: DataProvenanceCardId;
+  /** 卡片级展示用更新时间（通常取关键指标最新一条） */
+  displayUpdatedAtUtc: string;
+  /** 综合状态（取最严重状态） */
+  overallStatus: DataFreshnessStatus;
+  /** 主数据源摘要（一句） */
+  primarySourcesSummary: string;
+  /** PRD 21.5 页面提示（按 overallStatus 生成，mock 可覆盖） */
+  statusHint: string;
+  /** 该卡关联的关键指标明细 */
+  metrics: DataProvenance[];
+};
+
+/** 每日数据可信度快照（mock） */
+export type DataProvenanceDailySnapshot = {
+  asOf: string;
+  cards: Record<DataProvenanceCardId, CardDataProvenanceSummary>;
+};
+
 /** PRD 19.2 — 首页今日决策卡展示模型（纯数据，无 React 依赖） */
 export type DecisionCardViewModel = {
   asOf: string;

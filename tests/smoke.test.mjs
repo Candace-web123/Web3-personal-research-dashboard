@@ -22,6 +22,9 @@ const requiredPaths = [
   "data/alpha-pool.ts",
   "data/position-advice.ts",
   "data/strong-signals.ts",
+  "data/data-provenance.ts",
+  "lib/data-provenance.ts",
+  "components/dashboard/data-provenance-footer.tsx",
   "lib/research-overview.ts",
   "lib/v12-decision.ts",
   "lib/strong-signals.ts",
@@ -70,7 +73,11 @@ const pageMustInclude = [
   "StrongSectorTop",
   "StrongProtocolTop",
   "今日资金与结构",
-  "资金流向与结构性强信号"
+  "资金流向与结构性强信号",
+  "getDataProvenanceDailySnapshot",
+  "getCardDataProvenance",
+  "DataProvenanceCardId",
+  "dataProvenance={"
 ];
 
 for (const snippet of pageMustInclude) {
@@ -238,4 +245,44 @@ assert.match(v12DecisionSource, /export function buildDecisionCardModel/);
 assert.match(v12DecisionSource, /export function getTopMovers5/);
 assert.match(v12DecisionSource, /export function getAlphaTop10/);
 
-console.log("smoke test passed (V1.2 MVP homepage + TASK-022 strong signals checks).");
+// --- TASK-019：数据可信度 ---
+
+const provenanceData = readText("data/data-provenance.ts");
+assert.match(
+  provenanceData,
+  /DATA_PROVENANCE_DAILY_SNAPSHOT/,
+  "data/data-provenance.ts should export DATA_PROVENANCE_DAILY_SNAPSHOT"
+);
+
+const provenanceFooter = readText("components/dashboard/data-provenance-footer.tsx");
+assert.match(
+  provenanceFooter,
+  /aria-label=\{LABEL_DATA_TRUST\}/,
+  "data-provenance-footer should expose data trust aria-label"
+);
+assert.match(provenanceFooter, /DataProvenanceFooter/);
+
+for (const cardFile of [
+  "components/dashboard/decision-card.tsx",
+  "components/dashboard/btc-cycle-card.tsx",
+  "components/dashboard/market-environment-card.tsx"
+]) {
+  const cardSource = readText(cardFile);
+  assert.match(
+    cardSource,
+    /DataProvenanceFooter/,
+    `${cardFile} should render DataProvenanceFooter`
+  );
+  assert.match(
+    cardSource,
+    /dataProvenance/,
+    `${cardFile} should accept dataProvenance prop`
+  );
+}
+
+const dataGuards = readText("lib/data-guards.ts");
+assert.match(dataGuards, /export function assertDataProvenance/);
+
+console.log(
+  "smoke test passed (V1.2 MVP homepage + TASK-022 strong signals + TASK-019 data provenance)."
+);

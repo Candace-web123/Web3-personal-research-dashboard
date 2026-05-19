@@ -17,8 +17,11 @@ import {
   getMoversTop5,
   getNarratives,
   getPositionAdviceSnapshot,
-  getStrongSignalsDailySnapshot
+  getStrongSignalsDailySnapshot,
+  getDataProvenanceDailySnapshot
 } from "@/data";
+import { DataProvenanceCardId } from "@/data/types";
+import { getCardDataProvenance } from "@/lib/data-provenance";
 import { calculateResearchOverview } from "@/lib/research-overview";
 import {
   getStrongChainTop3,
@@ -35,6 +38,7 @@ export default function Home() {
   const btcCycleSnapshot = getBtcCycleSnapshot();
   const marketEnvironmentSnapshot = getMarketEnvironmentSnapshot();
   const strongSignalsSnapshot = getStrongSignalsDailySnapshot();
+  const dataProvenanceSnapshot = getDataProvenanceDailySnapshot();
   const moversTop5 = getTopMovers5(getMoversTop5());
   const alphaTop10 = getAlphaTop10(getAlphaPool());
   const positionAdviceSnapshot = getPositionAdviceSnapshot();
@@ -69,11 +73,29 @@ export default function Home() {
         </p>
       </header>
 
-      <DecisionCard model={decisionModel} />
+      <DecisionCard
+        model={decisionModel}
+        dataProvenance={getCardDataProvenance(
+          DataProvenanceCardId.Decision,
+          dataProvenanceSnapshot
+        )}
+      />
 
-      <BtcCycleCard snapshot={btcCycleSnapshot} />
+      <BtcCycleCard
+        snapshot={btcCycleSnapshot}
+        dataProvenance={getCardDataProvenance(
+          DataProvenanceCardId.BtcCycle,
+          dataProvenanceSnapshot
+        )}
+      />
 
-      <MarketEnvironmentCard snapshot={marketEnvironmentSnapshot} />
+      <MarketEnvironmentCard
+        snapshot={marketEnvironmentSnapshot}
+        dataProvenance={getCardDataProvenance(
+          DataProvenanceCardId.MarketEnvironment,
+          dataProvenanceSnapshot
+        )}
+      />
 
       <MoversTop5Card movers={moversTop5} />
 

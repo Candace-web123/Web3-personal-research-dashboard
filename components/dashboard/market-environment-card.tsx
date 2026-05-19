@@ -1,4 +1,6 @@
+import { DataProvenanceFooter } from "@/components/dashboard/data-provenance-footer";
 import type {
+  CardDataProvenanceSummary,
   MarketDimensionScore,
   MarketEnvironmentSnapshot
 } from "@/data/types";
@@ -11,6 +13,7 @@ import {
 
 export type MarketEnvironmentCardProps = {
   snapshot: MarketEnvironmentSnapshot;
+  dataProvenance?: CardDataProvenanceSummary;
 };
 
 function displayOrDash(value: string | undefined): string {
@@ -45,7 +48,10 @@ function SummaryBlock({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function MarketEnvironmentCard({ snapshot }: MarketEnvironmentCardProps) {
+export function MarketEnvironmentCard({
+  snapshot,
+  dataProvenance
+}: MarketEnvironmentCardProps) {
   return (
     <section
       className="flex flex-col gap-4 rounded-lg border border-zinc-200 bg-zinc-50 p-4 sm:p-5"
@@ -58,7 +64,6 @@ export function MarketEnvironmentCard({ snapshot }: MarketEnvironmentCardProps) 
             {snapshot.asOf}
           </time>
         </div>
-        <p className="text-xs text-zinc-500">数据来源：本地 mock（MVP）</p>
       </header>
 
       <div className="rounded-md border border-amber-200 bg-amber-50 p-4">
@@ -135,6 +140,8 @@ export function MarketEnvironmentCard({ snapshot }: MarketEnvironmentCardProps) 
       ) : (
         <p className="border-t border-zinc-200 pt-4 text-sm text-zinc-500">—</p>
       )}
+
+      {dataProvenance ? <DataProvenanceFooter summary={dataProvenance} /> : null}
     </section>
   );
 }
