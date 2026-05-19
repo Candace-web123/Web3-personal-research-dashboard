@@ -307,6 +307,23 @@ assert.match(
 const tokenTxLib = readText("lib/token-transmission.ts");
 assert.match(tokenTxLib, /export function assertAlphaTokenTransmission/);
 
+// --- TASK-021：链下尽调结构化 ---
+
+assert.match(typesSource, /OffchainDueDiligence/);
+assert.match(alphaPoolSource, /offchainDueDiligence:\s*\{/);
+assert.match(alphaPoolSource, /OffchainDueDiligenceStatus\./);
+assert.match(alphaCardSource, /OffchainDueDiligenceBlock/);
+assert.match(alphaCardSource, /entry\.offchainDueDiligence/);
+assert.match(
+  alphaCardSource,
+  /\\u94fe\\u4e0b\\u5c3d\\u8c03/,
+  "alpha-pool-card should show offchain due diligence section"
+);
+assert.match(dataGuards, /export function assertAlphaOffchainDueDiligence/);
+
+assert.equal(pageSource.includes("fetch("), false, "app/page.tsx must not use fetch");
+assert.equal(pageSource.includes("axios"), false, "app/page.tsx must not use axios");
+
 console.log(
-  "smoke test passed (V1.2 MVP + TASK-022 + TASK-019 + TASK-020 token transmission)."
+  "smoke test passed (V1.2 MVP + TASK-019/020/021 offchain due diligence)."
 );

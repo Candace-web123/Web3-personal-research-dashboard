@@ -1,9 +1,13 @@
 import type { AlphaPoolEntry } from "./types";
 import {
   AlphaLifecycleState,
+  OffchainDueDiligenceRiskLevel,
+  OffchainDueDiligenceStatus,
   TokenTransmissionStrength,
   TokenTransmissionType
 } from "./types";
+
+const DD_REVIEWED_AT = "2026-05-18";
 
 /**
  * V1.2 Alpha 观察池（静态 mock，共 10 条）。
@@ -37,6 +41,25 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     nextVerification:
       "确认 TVL 净流入是否连续 3 日为正，且费用收入 7D 环比不低于 +15%",
     holderNotes: "已从异动 Top5 升级为 Alpha 候选，尚未满足进池 3/8 硬条件",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      financingStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      communityActivityStatus: OffchainDueDiligenceStatus.Confirmed,
+      productProgressStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      keyFindings: [
+        "核心团队履历在公开渠道可交叉验证，但部分关联方披露仍不完整",
+        "融资轮次与投资方名单大体可查，细节口径偶有差异",
+        "YT/PT 产品迭代节奏稳定，社区讨论以使用体验为主"
+      ],
+      unresolvedQuestions: [
+        "大额解锁日历与官方披露是否完全一致？",
+        "激励结束后 TVL 留存率是否可持续？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.Medium,
+      lastReviewedAt: DD_REVIEWED_AT,
+      note: "部分确认，仍需跟踪；不构成买入建议"
+    },
     risks: [
       {
         priority: "P1",
@@ -70,6 +93,25 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     grade: "A",
     lifecycle: AlphaLifecycleState.FocusTracking,
     nextVerification: "跟踪周度协议收入与 HYPE 回购/销毁公告是否落地",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      financingStatus: OffchainDueDiligenceStatus.Unclear,
+      communityActivityStatus: OffchainDueDiligenceStatus.Confirmed,
+      productProgressStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.Unclear,
+      keyFindings: [
+        "产品与成交量数据可链上交叉验证，业务面相对透明",
+        "回购/收入分配机制仍依赖官方公告，执行细节待持续核对",
+        "社区活跃度较高，但部分讨论含未核实传闻"
+      ],
+      unresolvedQuestions: [
+        "回购资金是否来自可持续协议收入而非一次性储备？",
+        "长期解锁与做市安排披露是否完整？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.Medium,
+      lastReviewedAt: DD_REVIEWED_AT,
+      note: "重点跟踪项目：部分确认，需每周复核"
+    },
     risks: [
       {
         priority: "P1",
@@ -102,6 +144,25 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     grade: "B",
     lifecycle: AlphaLifecycleState.Watching,
     nextVerification: "核实链上 RWA AUM 7D 变化是否与价格异动同向",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      financingStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      communityActivityStatus: OffchainDueDiligenceStatus.Unclear,
+      productProgressStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.Unclear,
+      keyFindings: [
+        "RWA 产品线与合作伙伴有公开材料，但链下合规细节信息不足",
+        "融资背景部分可查，估值与代币关系仍需人工厘清",
+        "社媒热度与链上活跃有时不同步，可能存在叙事溢价"
+      ],
+      unresolvedQuestions: [
+        "监管口径变化对产品线的影响路径？",
+        "代币与协议 AUM 的价值关联是否被过度定价？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.Medium,
+      lastReviewedAt: DD_REVIEWED_AT,
+      note: "叙事驱动成分较高，尽调结论偏谨慎"
+    },
     risks: [
       {
         priority: "P2",
@@ -134,6 +195,24 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     grade: "B",
     lifecycle: AlphaLifecycleState.Watching,
     nextVerification: "对比 Raydium / Meteora 同期份额变化，确认是否结构性而非短期",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      financingStatus: OffchainDueDiligenceStatus.Confirmed,
+      communityActivityStatus: OffchainDueDiligenceStatus.Confirmed,
+      productProgressStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      keyFindings: [
+        "团队在 Solana 生态知名度较高，过往产品交付记录相对可查",
+        "融资历史公开度较好，但代币分配细节需定期复核",
+        "聚合器份额数据可链上验证，与官方口径大体一致"
+      ],
+      unresolvedQuestions: [
+        "perp 模块与现货路由的收入分成是否可持续？",
+        "激励重启是否会扭曲短期份额数据？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.Medium,
+      lastReviewedAt: DD_REVIEWED_AT
+    },
     risks: [
       {
         priority: "P2",
@@ -166,6 +245,25 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     grade: "B",
     lifecycle: AlphaLifecycleState.Watching,
     nextVerification: "确认 TVL 回升是否由真实借贷需求驱动而非激励挖矿",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.Confirmed,
+      financingStatus: OffchainDueDiligenceStatus.Confirmed,
+      communityActivityStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      productProgressStatus: OffchainDueDiligenceStatus.Confirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      keyFindings: [
+        "团队与协议历史悠久，公开审计与安全事件记录较完整",
+        "多链部署节奏稳定，治理流程有迹可循",
+        "代币经济更多依赖治理与模块设计，直分收入路径仍待观察"
+      ],
+      unresolvedQuestions: [
+        "GHO 等模块风险是否会在极端行情外溢至 AAVE 品牌？",
+        "治理提案频率上升是否会带来短期政策不确定性？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.Low,
+      lastReviewedAt: DD_REVIEWED_AT,
+      note: "蓝筹 DeFi，链下信息相对充分，但仍非无风险"
+    },
     risks: [
       {
         priority: "P3",
@@ -199,6 +297,25 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     lifecycle: AlphaLifecycleState.Watching,
     nextVerification: "核对官方储备与对冲比率周报，确认 USDe 脱锚风险指标",
     holderNotes: "勿与 B 层 USDe 流动性指标混为同一交易标的",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      financingStatus: OffchainDueDiligenceStatus.Unclear,
+      communityActivityStatus: OffchainDueDiligenceStatus.Unclear,
+      productProgressStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.Risky,
+      keyFindings: [
+        "合成稳定币机制依赖对冲与储备透明度，公开材料存在理解门槛",
+        "融资与投资方信息部分可查，但风险披露需持续跟踪",
+        "社区讨论波动大，极端行情下信息质量下降"
+      ],
+      unresolvedQuestions: [
+        "储备与对冲比率是否按承诺频率完整披露？",
+        "监管态度变化对 USDe 结构的潜在影响？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.High,
+      lastReviewedAt: DD_REVIEWED_AT,
+      note: "风险较高：信息不足与机制复杂度并存，仅适合小额观察"
+    },
     risks: [
       {
         priority: "P0",
@@ -231,6 +348,24 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     grade: "B",
     lifecycle: AlphaLifecycleState.Watching,
     nextVerification: "验证 CCIP 消息量 7D 环比是否持续改善",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.Confirmed,
+      financingStatus: OffchainDueDiligenceStatus.Confirmed,
+      communityActivityStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      productProgressStatus: OffchainDueDiligenceStatus.Confirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      keyFindings: [
+        "团队与机构合作披露相对充分，预言机赛道地位成熟",
+        "审计与安全公告历史较长，但需关注新模块引入风险",
+        "CCIP 叙事与链上消息量需分开验证，避免混为一谈"
+      ],
+      unresolvedQuestions: [
+        "RWA 相关合作是否带来可持续费用而非一次性新闻？",
+        "质押模块改动对代币锁仓结构的长期影响？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.Low,
+      lastReviewedAt: DD_REVIEWED_AT
+    },
     risks: [
       {
         priority: "P2",
@@ -263,6 +398,25 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     grade: "C",
     lifecycle: AlphaLifecycleState.Watching,
     nextVerification: "对比 ATOM 生态资金是否同步流入，排除孤立行情",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      financingStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      communityActivityStatus: OffchainDueDiligenceStatus.Unclear,
+      productProgressStatus: OffchainDueDiligenceStatus.PartiallyConfirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.Unclear,
+      keyFindings: [
+        "L1 与模块叙事清晰，但跨生态资金轮动快",
+        "融资信息部分可查，代币通胀与解锁需对照官方文档",
+        "社媒讨论热度波动大，链上费用改善是否可持续待验证"
+      ],
+      unresolvedQuestions: [
+        "Cosmos 生态资金是否结构性流入而非短期投机？",
+        "费用燃烧数据是否包含非经常性活动？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.Medium,
+      lastReviewedAt: DD_REVIEWED_AT,
+      note: "部分确认，信息不足项较多"
+    },
     risks: [
       {
         priority: "P3",
@@ -295,6 +449,25 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     grade: "C",
     lifecycle: AlphaLifecycleState.Watching,
     nextVerification: "跟踪是否出现费用开关正式提案及社区投票进度",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.Confirmed,
+      financingStatus: OffchainDueDiligenceStatus.Confirmed,
+      communityActivityStatus: OffchainDueDiligenceStatus.Confirmed,
+      productProgressStatus: OffchainDueDiligenceStatus.Confirmed,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.Risky,
+      keyFindings: [
+        "团队与协议历史长，产品与治理透明度在 DeFi 中较高",
+        "费用开关与代币价值捕获仍高度依赖治理结果，存在不确定性",
+        "金库代币占比高，长期供给压力需持续跟踪"
+      ],
+      unresolvedQuestions: [
+        "费用开关若通过，收入分配比例是否对 UNI 持有人实质有利？",
+        "监管对 AMM 的态度是否会影响治理节奏？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.Medium,
+      lastReviewedAt: DD_REVIEWED_AT,
+      note: "协议强≠代币强，尽调侧重治理与供给"
+    },
     risks: [
       {
         priority: "P2",
@@ -327,6 +500,25 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     grade: "D",
     lifecycle: AlphaLifecycleState.NewlyFound,
     nextVerification: "若 7D 链上活跃无改善则降级出 Top10 展示",
+    offchainDueDiligence: {
+      teamBackgroundStatus: OffchainDueDiligenceStatus.Risky,
+      financingStatus: OffchainDueDiligenceStatus.Unclear,
+      communityActivityStatus: OffchainDueDiligenceStatus.Risky,
+      productProgressStatus: OffchainDueDiligenceStatus.Unclear,
+      tokenUnlockStatus: OffchainDueDiligenceStatus.Risky,
+      keyFindings: [
+        "监管与隐私争议在多国媒体报道中反复出现，链下风险偏高",
+        "代币解锁压力大，流通占比低，供给叙事不确定性高",
+        "链上活跃与社媒热度经常背离，数据可信度存疑"
+      ],
+      unresolvedQuestions: [
+        "主要市场监管态度是否会出现实质性收紧？",
+        "官方披露的活跃数据口径是否可独立验证？"
+      ],
+      riskLevel: OffchainDueDiligenceRiskLevel.High,
+      lastReviewedAt: DD_REVIEWED_AT,
+      note: "风险较高：不建议作为重点深挖对象，仅保留观察"
+    },
     risks: [
       {
         priority: "P1",

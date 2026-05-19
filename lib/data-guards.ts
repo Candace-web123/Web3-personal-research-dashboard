@@ -3,7 +3,8 @@ import { BTC_CYCLE_SNAPSHOT } from "@/data/btc-cycle";
 import { MARKET_ENVIRONMENT_SNAPSHOT } from "@/data/market-environment";
 import { MOVERS_TOP5 } from "@/data/movers-top5";
 import { POSITION_ADVICE_SNAPSHOT } from "@/data/position-advice";
-import type { AlphaPoolEntry, WatchlistUniverseEntry } from "@/data/types";
+import type { AlphaPoolEntry, OffchainDueDiligence, WatchlistUniverseEntry } from "@/data/types";
+import { OffchainDueDiligenceRiskLevel } from "@/data/types";
 import { DATA_PROVENANCE_DAILY_SNAPSHOT } from "@/data/data-provenance";
 import { STRONG_SIGNALS_DAILY_SNAPSHOT } from "@/data/strong-signals";
 import type {
@@ -81,6 +82,54 @@ export function assertMoversTop5(
   }
 }
 
+/** 校验 Alpha 链下尽调 mock（TASK-021） */
+export function assertAlphaOffchainDueDiligence(
+  pool: readonly AlphaPoolEntry[] = ALPHA_POOL
+): void {
+  if (!isDevAssertionEnabled()) return;
+
+  const validRiskLevels = new Set(Object.values(OffchainDueDiligenceRiskLevel));
+
+  for (const entry of pool) {
+    const label = `${entry.id} (${entry.token})`;
+    const dd: OffchainDueDiligence | undefined = entry.offchainDueDiligence;
+
+    assertInvariant(Boolean(dd), `${label}: offchainDueDiligence is required`);
+
+    if (!dd) continue;
+
+    assertInvariant(
+      dd.keyFindings.length >= 1,
+      `${label}: keyFindings must have at least 1 item`
+    );
+    assertInvariant(
+      dd.unresolvedQuestions.length >= 1,
+      `${label}: unresolvedQuestions must have at least 1 item`
+    );
+    assertInvariant(
+      validRiskLevels.has(dd.riskLevel),
+      `${label}: riskLevel must be a valid OffchainDueDiligenceRiskLevel`
+    );
+    assertInvariant(
+      dd.lastReviewedAt.trim().length > 0,
+      `${label}: lastReviewedAt must be non-empty`
+    );
+
+    for (const finding of dd.keyFindings) {
+      assertInvariant(
+        finding.trim().length > 0,
+        `${label}: keyFindings must not contain empty strings`
+      );
+    }
+    for (const question of dd.unresolvedQuestions) {
+      assertInvariant(
+        question.trim().length > 0,
+        `${label}: unresolvedQuestions must not contain empty strings`
+      );
+    }
+  }
+}
+
 /** 校验 Alpha 池条数下限与首页展示上限 */
 export function assertAlphaPool(
   pool: readonly AlphaPoolEntry[] = ALPHA_POOL
@@ -102,6 +151,7 @@ export function assertAlphaPool(
     "ALPHA_POOL ids must be unique"
   );
 
+  assertAlphaOffchainDueDiligence(pool);
   assertAlphaTokenTransmission(pool);
 }
 

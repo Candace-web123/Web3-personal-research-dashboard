@@ -781,13 +781,28 @@
 
 ---
 
-## 2.4 守边界版后续任务（TASK-021～023，未开始）
+## 2.4 TASK-021：链下尽调结构化（已完成）
+
+**阶段：** Phase 8｜**优先级：** P1｜**状态：** 已完成
+
+**实现位置：**
+
+- `data/types.ts`：`OffchainDueDiligence`、`OffchainDueDiligenceStatus`、`OffchainDueDiligenceRiskLevel`
+- `data/alpha-pool.ts`：10 条 Alpha 均含 `offchainDueDiligence` mock
+- `lib/data-guards.ts`：`assertAlphaOffchainDueDiligence`（并入 `assertAlphaPool`）
+- `components/dashboard/alpha-pool-card.tsx`：`OffchainDueDiligenceBlock`（折叠区展示）
+
+**验收：** 五维状态 + 风险等级 + 关键发现 + 待确认问题 + 复核日期；WLD/ENA 高风险；未改首页布局。
+
+---
+
+## 2.5 守边界版后续任务（TASK-023～024，未开始）
 
 | 编号 | 名称 | 优先级 | 说明 |
 |------|------|--------|------|
 | TASK-019 | （已完成，见 2.2） | — | — |
 | TASK-020 | （已完成，见 2.3） | — | — |
-| TASK-021 | 链下尽调清单 | P1 | PRD 13.6、24.2.1 |
+| TASK-021 | （已完成，见 2.4） | — | — |
 | TASK-022 | （已完成，见 2.1） | — | — |
 | TASK-023 | 每日复盘区 + 手动覆盖占位 | P1 | PRD 24.3、21.7 |
 | TASK-024 | 冒烟验收补强 / 墨刀 UI 设计稿 | P1/P2 | 设计阶段可并行 |
@@ -835,21 +850,21 @@
 
 **下一步开发（二选一）：**
 
-1. **TASK-021** — 链下尽调清单（重点跟踪项目，PRD 13.6）  
-2. **TASK-024** — 墨刀首页 UI 设计稿（建议 021/023 完成后再做整体稿）
+1. **TASK-023** — 每日复盘区 + 手动覆盖占位（PRD 24.3）  
+2. **TASK-024** — 墨刀首页 UI 设计稿（建议 023 完成后再做整体稿）
 
-**墨刀稿面已具备：** 数据可信度三卡底栏、Alpha 传导类型/强度/依据块。仍须预留：复盘区（023）、尽调清单（021）。
+**墨刀稿面已具备：** 数据可信度底栏、Alpha 传导块、Alpha 折叠区链下尽调。仍须预留：复盘区（023）。
 
-### 下一轮可直接复制给 Cursor 的执行 Prompt（TASK-021）
+### 下一轮可直接复制给 Cursor 的执行 Prompt（TASK-023）
 
 ```text
-请只完成 docs/TASKS.md 中的 TASK-021：链下尽调 mock 与 Alpha/首页展示。
+请只完成 docs/TASKS.md 中的 TASK-023：每日复盘区 mock 与首页展示。
 
-约束：不接 API；不新增子路由；遵循 PRD 13.6、24.2.1。
+约束：不接 API；不新增子路由；不改 Alpha/尽调已有结构。
 
-交付：DueDiligence 类型 + mock + 重点跟踪项目展示；冒烟更新。
+交付：复盘字段 mock + 首页区块（可折叠）；冒烟更新。
 
-验收：对照 TASK-021 与附录 A。
+验收：对照 TASK-023 与附录 A。
 ```
 
 ---
@@ -884,7 +899,7 @@
 | 旧版模块折叠 | 底部 `<details>`，不占首屏 | [x] |
 | 数据可信度 | 来源/时间/状态（TASK-019） | [x] |
 | 代币传导结构化 | 类型/强度/依据（TASK-020） | [x] |
-| 链下尽调 | 重点跟踪项目清单（TASK-021） | [ ] |
+| 链下尽调 | 重点跟踪项目清单（TASK-021） | [x] |
 | 每日复盘 | 3～5 字段可记录（TASK-023） | [ ] |
 | 移动端可读 | 决策卡置顶、纵向卡片（12.8） | [x] |
 | 冒烟测试 | `npm test` + `npm run build` | [x] |
