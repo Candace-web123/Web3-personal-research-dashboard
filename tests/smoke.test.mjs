@@ -41,7 +41,12 @@ const requiredPaths = [
   "components/dashboard/strong-chain-top.tsx",
   "components/dashboard/strong-sector-top.tsx",
   "components/dashboard/strong-protocol-top.tsx",
-  "components/dashboard/strong-signal-entry-layout.tsx"
+  "components/dashboard/strong-signal-entry-layout.tsx",
+  "lib/actual-position-compare.ts",
+  "components/dashboard/actual-position-compare-card.tsx",
+  "components/dashboard/decision-hero-card.tsx",
+  "components/dashboard/dashboard-header.tsx",
+  "data/risk-warnings-dashboard.ts"
 ];
 
 for (const relativePath of requiredPaths) {
@@ -63,20 +68,26 @@ const pageMustInclude = [
   "buildDecisionCardModel",
   "getTopMovers5",
   "getAlphaTop10",
-  "<DecisionCard",
+  "<DecisionHeroCard",
   "<BtcCycleCard",
   "<MarketEnvironmentCard",
+  "<ActualPositionCompareCard",
+  "actualPositionContext",
+  "DashboardHeader",
+  "variant=\"compact\"",
+  "variant=\"v4\"",
+  "variant=\"detailed\"",
   "<MoversTop5Card",
   "<AlphaPoolCard",
   "<PositionAdviceCard",
   "<RiskWarningsCard",
-  "V1.2 每日投研",
-  "旧版研究模块 / 研究数据补充",
+  "DashboardHeader",
+  "\\u65e7\\u7248\\u7814\\u7a76\\u6a21\\u5757",
   "StrongChainTop",
   "StrongSectorTop",
   "StrongProtocolTop",
-  "今日资金与结构",
-  "资金流向与结构性强信号",
+  "\\u4eca\\u65e5\\u8d44\\u91d1\\u4e0e\\u7ed3\\u6784",
+  "StrongChainTop",
   "getDataProvenanceDailySnapshot",
   "getCardDataProvenance",
   "DataProvenanceCardId",
@@ -116,11 +127,11 @@ for (const snippet of pageMustNotInclude) {
 const moduleTitleChecks = [
   ["components/dashboard/decision-card.tsx", "LABEL_DECISION_CARD"],
   ["components/dashboard/btc-cycle-card.tsx", "BTC 周期"],
-  ["components/dashboard/market-environment-card.tsx", "市场环境"],
+  ["components/dashboard/market-environment-card.tsx", "\\u5e02\\u573a\\u73af\\u5883"],
   ["components/dashboard/movers-top5-card.tsx", "今日异动 Top 5"],
   ["components/dashboard/alpha-pool-card.tsx", "Alpha 观察池 Top 10"],
   ["components/dashboard/position-advice-card.tsx", "今日仓位建议"],
-  ["components/dashboard/risk-warnings-card.tsx", "风险预警"],
+  ["components/dashboard/risk-warnings-card.tsx", "\\u98ce\\u9669\\u9884\\u8b66"],
   ["components/dashboard/strong-chain-top.tsx", "强链 Top 3"],
   ["components/dashboard/strong-sector-top.tsx", "强赛道 Top 3"],
   ["components/dashboard/strong-protocol-top.tsx", "强协议 Top 5"]
@@ -341,10 +352,40 @@ assert.match(typesSource, /DailyReviewSnapshot/);
 
 const dailyReviewCard = readText("components/dashboard/daily-review-card.tsx");
 assert.match(dailyReviewCard, /DailyReviewCard/);
-assert.match(dailyReviewCard, /\\u6bcf\\u65e5\\u590d\\u76d8/);
+assert.match(
+  dailyReviewCard,
+  /\\u660e\\u65e5\\u4ed3\\u4f4d\\u89c2\\u5bdf\\u6761\\u4ef6/
+);
+
+const dashboardHeader = readText("components/dashboard/dashboard-header.tsx");
+assert.match(dashboardHeader, /V1\.2/);
 
 assert.match(dataGuards, /export function assertDailyReviewSnapshot/);
 
+// --- TASK-024：实际仓位对比分析 ---
+
+const actualCompareLib = readText("lib/actual-position-compare.ts");
+assert.match(actualCompareLib, /export function compareActualPosition/);
+assert.match(actualCompareLib, /positionRecommendations/);
+assert.match(actualCompareLib, /FORBIDDEN_RECOMMENDATION_PHRASES/);
+
+assert.match(typesSource, /ActualPositionInput/);
+assert.match(typesSource, /ActualPositionCompareResult/);
+
+const actualCompareCard = readText("components/dashboard/actual-position-compare-card.tsx");
+assert.match(actualCompareCard, /ActualPositionCompareCard/);
+assert.match(
+  actualCompareCard,
+  /个人仓位建议/,
+  "actual-position-compare-card should include personal position advice section"
+);
+assert.match(actualCompareCard, /compareActualPosition/);
+assert.equal(
+  actualCompareCard.includes("fetch("),
+  false,
+  "actual-position-compare-card must not use fetch"
+);
+
 console.log(
-  "smoke test passed (V1.2 MVP + TASK-019/020/021/023 daily review)."
+  "smoke test passed (V1.2 MVP + TASK-019/020/021/023/024)."
 );

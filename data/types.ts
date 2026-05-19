@@ -173,6 +173,12 @@ export interface RiskTag {
   message: string;
   category?: string;
   relatedAssetId?: string;
+  /** 风险预警详情卡：为何重要 */
+  whyImportant?: string;
+  /** 风险预警详情卡：对仓位影响 */
+  positionImpact?: string;
+  monitoringFrequency?: string;
+  assetLabel?: string;
 }
 
 // --- V1.2 BTC 周期快照（TASK-005）---
@@ -346,6 +352,12 @@ export type AlphaPoolEntry = {
  * PRD 24.3 — 每日复盘快照（观察记录；非投资建议、非收益复盘）。
  * 用于记录判断偏差、已验证信号与待跟踪风险。
  */
+export type TomorrowPositionCondition = {
+  title: string;
+  body: string;
+  tone: "green" | "amber" | "slate" | "blue" | "red";
+};
+
 export type DailyReviewSnapshot = {
   asOf: string;
   /** 今日投研结论与操作倾向的一句话回顾 */
@@ -358,6 +370,8 @@ export type DailyReviewSnapshot = {
   signalsToTrackTomorrow: string[];
   /** 需要持续跟踪的风险项 */
   riskFollowUps: string[];
+  /** 明日仓位观察条件（墨刀 V1.2） */
+  tomorrowPositionConditions?: TomorrowPositionCondition[];
   /** 补充备注（如情绪、信息源干扰等） */
   notes?: string;
 };
@@ -403,6 +417,14 @@ export type PositionAdviceSnapshot = {
   rationale: string[];
   /** 可选：平衡型区间（默认 UI 不展示） */
   balancedAllocation?: AllocationRange;
+  /** 上调风险暴露条件（墨刀 V1.2） */
+  increaseExposureConditions?: string[];
+  /** 下调风险暴露条件（墨刀 V1.2） */
+  decreaseExposureConditions?: string[];
+  /** 投研结论一句话（个人风险暴露参考） */
+  researchConclusion?: string;
+  /** 是否建议新增仓位（展示用短句） */
+  addPositionAdvice?: string;
 };
 
 // --- V1.2 强链 / 强赛道 / 强协议（TASK-022A · PRD 六～八、12.1）---
@@ -590,4 +612,95 @@ export type DecisionCardViewModel = {
   riskReminder: string;
   /** PRD 19.2 — 今日最强方向（来自强信号快照） */
   strongestDirection?: string;
+  /** 决策卡「判断依据」三列（墨刀 V1.2） */
+  judgmentBasis?: DecisionJudgmentBasisItem[];
+  /** 判断依据区核心风险摘要 */
+  coreRiskSummary?: string;
+};
+
+export type DecisionJudgmentBasisItem = {
+  title: string;
+  body: string;
+  tone: "btc" | "market" | "alpha";
+};
+
+// --- V1.2 实际仓位对比分析（TASK-024 · PRD 第二十四章）---
+
+/** PRD 24.5 — 仓位集中度 */
+export const ActualPositionConcentration = {
+  Low: "Low",
+  Medium: "Medium",
+  High: "High",
+  Unknown: "Unknown"
+} as const;
+export type ActualPositionConcentration =
+  (typeof ActualPositionConcentration)[keyof typeof ActualPositionConcentration];
+
+/** PRD 24.5 — 用户手动录入的实际仓位 */
+export type ActualPositionInput = {
+  stablecoinCashPercent: number;
+  btcEthPercent: number;
+  alphaPercent: number;
+  highRiskPercent: number;
+  outsideUniversePercent?: number;
+  concentrationLevel: ActualPositionConcentration;
+  topHoldingSymbol?: string;
+  topHoldingPercent?: number;
+  manuallyAdjusted: boolean;
+  uploadedAt?: string;
+};
+
+/** 单类仓位对比状态 */
+export const ActualPositionCompareStatus = {
+  Pending: "pending",
+  TooLow: "too_low",
+  InRange: "in_range",
+  TooHigh: "too_high",
+  NeedsConfirmation: "needs_confirmation"
+} as const;
+export type ActualPositionCompareStatus =
+  (typeof ActualPositionCompareStatus)[keyof typeof ActualPositionCompareStatus];
+
+/** PRD 24.8.2 — 偏差明细行 */
+export type ActualPositionDeviation = {
+  categoryId: string;
+  categoryLabel: string;
+  actualPercent: number | null;
+  referenceRangeLabel: string;
+  referenceMin: number;
+  referenceMax: number;
+  status: ActualPositionCompareStatus;
+  description: string;
+};
+
+/** PRD 24.8 — 结构化个人仓位建议（非买卖指令） */
+export type ActualPositionRecommendation = {
+  action: string;
+  rationale: string;
+  condition: string;
+  riskReminder: string;
+  invalidation: string;
+};
+
+/** PRD 24.8 — 规则化对比结果 */
+export type ActualPositionCompareResult = {
+  isComplete: boolean;
+  percentSum: number;
+  percentSumValid: boolean;
+  overallSummary: string;
+  deviations: ActualPositionDeviation[];
+  issues: string[];
+  strongestDirectionAligned: boolean | null;
+  strongestDirectionNote: string;
+  positionRecommendations: ActualPositionRecommendation[];
+};
+
+/** 对比引擎上下文（复用当日 mock 快照） */
+export type ActualPositionCompareContext = {
+  positionAdvice: PositionAdviceSnapshot;
+  decision: DecisionCardViewModel;
+  marketEnvironment: MarketEnvironmentSnapshot;
+  btcCycle: BtcCycleSnapshot;
+  strongSignals: StrongSignalsDailySnapshot;
+  risks: RiskTag[];
 };

@@ -35,5 +35,18 @@ export const POSITION_ADVICE_SNAPSHOT: PositionAdviceSnapshot = {
     stablecoin: "30-45%",
     alpha: "5-15%",
     highRiskHotspot: "0-3%"
-  }
+  },
+  researchConclusion:
+    "否（不建议新增仓位）：市场环境为中性轮动，BTC 上涨中期但恐惧贪婪偏高，以观察与验证为主。",
+  addPositionAdvice: "否，当前参考框架为防守 / 观察模式",
+  increaseExposureConditions: [
+    "BTC 链上风险指标回落至 NUPL < 0.3 且大额转账 P0 解除",
+    "稳定币流动性 7D 增幅 > 5% 且 ETF 流入连续改善",
+    "市场环境评分连续 2 日改善且无新增 P1 风险"
+  ],
+  decreaseExposureConditions: [
+    "新增 P0 级风险或宏观流动性急剧收缩",
+    "ETF / 稳定币流入信号转弱且恐惧贪婪进入极端区",
+    "Alpha 传导或链下尽调出现高风险项"
+  ]
 };
