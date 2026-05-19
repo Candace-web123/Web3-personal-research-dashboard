@@ -340,6 +340,28 @@ export type AlphaPoolEntry = {
   risks: RiskTag[];
 };
 
+// --- V1.2 每日复盘（TASK-023 · PRD 24.3）---
+
+/**
+ * PRD 24.3 — 每日复盘快照（观察记录；非投资建议、非收益复盘）。
+ * 用于记录判断偏差、已验证信号与待跟踪风险。
+ */
+export type DailyReviewSnapshot = {
+  asOf: string;
+  /** 今日投研结论与操作倾向的一句话回顾 */
+  decisionSummary: string;
+  /** 今日判断中相对合理的部分 */
+  whatWasRight: string[];
+  /** 今日判断中的偏差或待修正部分 */
+  whatWasWrong: string[];
+  /** 明日需要继续验证的信号 */
+  signalsToTrackTomorrow: string[];
+  /** 需要持续跟踪的风险项 */
+  riskFollowUps: string[];
+  /** 补充备注（如情绪、信息源干扰等） */
+  notes?: string;
+};
+
 // --- V1.2 仓位建议（TASK-008）---
 
 /** PRD 11.4 — 用户风险偏好（MVP 默认保守型） */

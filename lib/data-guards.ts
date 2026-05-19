@@ -5,9 +5,11 @@ import { MOVERS_TOP5 } from "@/data/movers-top5";
 import { POSITION_ADVICE_SNAPSHOT } from "@/data/position-advice";
 import type { AlphaPoolEntry, OffchainDueDiligence, WatchlistUniverseEntry } from "@/data/types";
 import { OffchainDueDiligenceRiskLevel } from "@/data/types";
+import { DAILY_REVIEW_SNAPSHOT } from "@/data/daily-review";
 import { DATA_PROVENANCE_DAILY_SNAPSHOT } from "@/data/data-provenance";
 import { STRONG_SIGNALS_DAILY_SNAPSHOT } from "@/data/strong-signals";
 import type {
+  DailyReviewSnapshot,
   DataProvenanceDailySnapshot,
   StrongChainEntry,
   StrongProtocolEntry,
@@ -164,7 +166,8 @@ export function assertV12SnapshotsAsOfAligned(): void {
     MARKET_ENVIRONMENT_SNAPSHOT.asOf,
     POSITION_ADVICE_SNAPSHOT.asOf,
     STRONG_SIGNALS_DAILY_SNAPSHOT.asOf,
-    DATA_PROVENANCE_DAILY_SNAPSHOT.asOf
+    DATA_PROVENANCE_DAILY_SNAPSHOT.asOf,
+    DAILY_REVIEW_SNAPSHOT.asOf
   ]);
   assertInvariant(
     asOfValues.size === 1,
@@ -253,6 +256,45 @@ export function assertDataProvenance(
   );
 }
 
+/** 校验每日复盘 mock（TASK-023） */
+export function assertDailyReviewSnapshot(
+  snapshot: DailyReviewSnapshot = DAILY_REVIEW_SNAPSHOT
+): void {
+  if (!isDevAssertionEnabled()) return;
+
+  assertInvariant(
+    snapshot.asOf.trim().length > 0,
+    "DAILY_REVIEW_SNAPSHOT.asOf must be non-empty"
+  );
+  assertInvariant(
+    snapshot.decisionSummary.trim().length > 0,
+    "DAILY_REVIEW_SNAPSHOT.decisionSummary must be non-empty"
+  );
+
+  const nonEmptyList = (
+    items: readonly string[],
+    field: string
+  ): void => {
+    assertInvariant(items.length >= 1, `DAILY_REVIEW_SNAPSHOT.${field} must have at least 1 item`);
+    for (const item of items) {
+      assertInvariant(
+        item.trim().length > 0,
+        `DAILY_REVIEW_SNAPSHOT.${field} must not contain empty strings`
+      );
+    }
+  };
+
+  nonEmptyList(snapshot.whatWasRight, "whatWasRight");
+  nonEmptyList(snapshot.whatWasWrong, "whatWasWrong");
+  nonEmptyList(snapshot.signalsToTrackTomorrow, "signalsToTrackTomorrow");
+  nonEmptyList(snapshot.riskFollowUps, "riskFollowUps");
+
+  assertInvariant(
+    snapshot.asOf === BTC_CYCLE_SNAPSHOT.asOf,
+    `DAILY_REVIEW asOf must match BTC_CYCLE_SNAPSHOT.asOf (${BTC_CYCLE_SNAPSHOT.asOf})`
+  );
+}
+
 /** 一次性运行全部 V1.2 mock 轻量校验（dev / test 用） */
 export function assertV12MockData(): void {
   assertWatchlistUniverse();
@@ -260,5 +302,6 @@ export function assertV12MockData(): void {
   assertAlphaPool();
   assertStrongSignals();
   assertDataProvenance();
+  assertDailyReviewSnapshot();
   assertV12SnapshotsAsOfAligned();
 }

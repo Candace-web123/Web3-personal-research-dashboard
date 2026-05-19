@@ -6,6 +6,7 @@ import { MARKET_ENVIRONMENT_SNAPSHOT } from "./market-environment";
 import { MOVERS_TOP5 } from "./movers-top5";
 import { narratives } from "./narratives";
 import { POSITION_ADVICE_SNAPSHOT } from "./position-advice";
+import { DAILY_REVIEW_SNAPSHOT } from "./daily-review";
 import { DATA_PROVENANCE_DAILY_SNAPSHOT } from "./data-provenance";
 import { STRONG_SIGNALS_DAILY_SNAPSHOT } from "./strong-signals";
 import { WATCHLIST_UNIVERSE } from "./watchlist-universe";
@@ -59,6 +60,10 @@ export function getDataProvenanceDailySnapshot() {
   return DATA_PROVENANCE_DAILY_SNAPSHOT;
 }
 
+export function getDailyReviewSnapshot() {
+  return DAILY_REVIEW_SNAPSHOT;
+}
+
 /** V1.2 全部快照聚合（单一入口，供 lib / 页面消费） */
 export function getV12MockSnapshots() {
   return {
@@ -69,7 +74,8 @@ export function getV12MockSnapshots() {
     alphaPool: ALPHA_POOL,
     positionAdvice: POSITION_ADVICE_SNAPSHOT,
     strongSignals: STRONG_SIGNALS_DAILY_SNAPSHOT,
-    dataProvenance: DATA_PROVENANCE_DAILY_SNAPSHOT
+    dataProvenance: DATA_PROVENANCE_DAILY_SNAPSHOT,
+    dailyReview: DAILY_REVIEW_SNAPSHOT
   } as const;
 }
 
@@ -84,6 +90,7 @@ export type { MoverTop5Entry } from "./movers-top5";
 export { WATCHLIST_UNIVERSE } from "./watchlist-universe";
 export { STRONG_SIGNALS_DAILY_SNAPSHOT } from "./strong-signals";
 export { DATA_PROVENANCE_DAILY_SNAPSHOT } from "./data-provenance";
+export { DAILY_REVIEW_SNAPSHOT } from "./daily-review";
 
 // --- 类型与枚举 ---
 
@@ -107,9 +114,11 @@ export type {
   StrongSignalMetric,
   StrongSignalsDailySnapshot,
   WatchlistUniverseEntry,
+  TokenTransmissionJudgement,
   CardDataProvenanceSummary,
   DataProvenance,
-  DataProvenanceDailySnapshot
+  DataProvenanceDailySnapshot,
+  DailyReviewSnapshot
 } from "./types";
 export type { MarketDimensionScore } from "./types";
 export {
@@ -127,5 +136,7 @@ export {
   WatchlistTier,
   DataProvenanceCardId,
   DataFreshnessStatus,
-  DataUpdateFrequency
+  DataUpdateFrequency,
+  TokenTransmissionType,
+  TokenTransmissionStrength
 } from "./types";
