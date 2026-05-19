@@ -24,6 +24,7 @@ const requiredPaths = [
   "data/strong-signals.ts",
   "data/data-provenance.ts",
   "lib/data-provenance.ts",
+  "lib/token-transmission.ts",
   "components/dashboard/data-provenance-footer.tsx",
   "lib/research-overview.ts",
   "lib/v12-decision.ts",
@@ -283,6 +284,29 @@ for (const cardFile of [
 const dataGuards = readText("lib/data-guards.ts");
 assert.match(dataGuards, /export function assertDataProvenance/);
 
+// --- TASK-020：代币传导结构化 ---
+
+const typesSource = readText("data/types.ts");
+assert.match(typesSource, /TokenTransmissionType/);
+assert.match(typesSource, /TokenTransmissionJudgement/);
+
+const alphaPoolSource = readText("data/alpha-pool.ts");
+assert.match(alphaPoolSource, /tokenTransmission:\s*\{/);
+assert.match(alphaPoolSource, /TokenTransmissionType\./);
+assert.match(alphaPoolSource, /strength: TokenTransmissionStrength/);
+
+const alphaCardSource = readText("components/dashboard/alpha-pool-card.tsx");
+assert.match(alphaCardSource, /TokenTransmissionBlock/);
+assert.match(alphaCardSource, /entry\.tokenTransmission/);
+assert.match(
+  alphaCardSource,
+  /代币价值传导/,
+  "alpha-pool-card should show token transmission section"
+);
+
+const tokenTxLib = readText("lib/token-transmission.ts");
+assert.match(tokenTxLib, /export function assertAlphaTokenTransmission/);
+
 console.log(
-  "smoke test passed (V1.2 MVP homepage + TASK-022 strong signals + TASK-019 data provenance)."
+  "smoke test passed (V1.2 MVP + TASK-022 + TASK-019 + TASK-020 token transmission)."
 );
