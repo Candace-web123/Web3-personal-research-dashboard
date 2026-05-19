@@ -1,9 +1,15 @@
-import type { AlphaPoolEntry, RiskTag } from "@/data/types";
+import type { AlphaPoolEntry, RiskTag, TokenTransmissionJudgement } from "@/data/types";
 import {
   alphaGradeTone,
   formatAlphaLifecycleState,
   riskPriorityTone
 } from "@/lib/display-utils";
+import {
+  formatTokenTransmissionStrength,
+  formatTokenTransmissionType,
+  tokenTransmissionStrengthTone,
+  tokenTransmissionTypeTone
+} from "@/lib/token-transmission";
 
 export type AlphaPoolCardProps = {
   entries: readonly AlphaPoolEntry[];
@@ -21,6 +27,50 @@ type AlphaEntryRowProps = {
   entry: AlphaPoolEntry;
   rank: number;
 };
+
+function TokenTransmissionBlock({
+  judgement
+}: {
+  judgement: TokenTransmissionJudgement;
+}) {
+  return (
+    <section className="mt-3 rounded-md border border-teal-200 bg-teal-50/80 px-3 py-2">
+      <p className="text-xs font-semibold text-teal-900">代币价值传导（PRD 9.2.1）</p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        <span
+          className={`rounded-full border px-2 py-0.5 text-xs font-medium ${tokenTransmissionTypeTone(judgement.type)}`}
+        >
+          {formatTokenTransmissionType(judgement.type)}
+        </span>
+        <span
+          className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${tokenTransmissionStrengthTone(judgement.strength)}`}
+        >
+          强度 {formatTokenTransmissionStrength(judgement.strength)}
+        </span>
+        <span className="rounded-full border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-600">
+          {judgement.affectsAlphaGrade ? "影响评级" : "不影响评级"}
+        </span>
+      </div>
+      {judgement.basis.length > 0 ? (
+        <ul className="mt-2 flex flex-wrap gap-1">
+          {judgement.basis.map((item) => (
+            <li
+              key={item}
+              className="rounded border border-teal-100 bg-white px-1.5 py-0.5 text-[11px] text-teal-900"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-xs text-teal-800">依据：无（无传导 / 待补数据）</p>
+      )}
+      {judgement.note?.trim() ? (
+        <p className="mt-2 text-xs leading-5 text-teal-950">{judgement.note}</p>
+      ) : null}
+    </section>
+  );
+}
 
 function RiskItem({ risk }: { risk: RiskTag }) {
   return (
@@ -68,6 +118,8 @@ function AlphaEntryRow({ entry, rank }: AlphaEntryRowProps) {
         <span className="font-medium text-zinc-700">进池理由：</span>
         {displayOrDash(entry.thesisLine)}
       </p>
+
+      <TokenTransmissionBlock judgement={entry.tokenTransmission} />
 
       <div className="mt-2 rounded-md border border-sky-200 bg-sky-50 px-3 py-2">
         <p className="text-xs font-medium text-sky-800">下一步验证</p>

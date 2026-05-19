@@ -766,12 +766,27 @@
 
 ---
 
-## 2.3 守边界版后续任务（TASK-020～023，未开始）
+## 2.3 TASK-020：代币传导结构化（已完成）
+
+**阶段：** Phase 8｜**优先级：** P1｜**状态：** 已完成
+
+**实现位置：**
+
+- `data/types.ts`：`TokenTransmissionType`、`TokenTransmissionStrength`、`TokenTransmissionJudgement`
+- `data/alpha-pool.ts`：10 条 Alpha 全部改为结构化 `tokenTransmission`
+- `lib/token-transmission.ts`：格式化、色板、`assertAlphaTokenTransmission`（A 级不得弱/无传导）
+- `components/dashboard/alpha-pool-card.tsx`：`TokenTransmissionBlock`（类型 / 强度 / 依据 / 备注）
+
+**验收：** Alpha 卡每条可见传导标签；HYPE 为回购型+强，WLD 为无传导+D 级；冒烟与 `assertAlphaPool` 通过。
+
+---
+
+## 2.4 守边界版后续任务（TASK-021～023，未开始）
 
 | 编号 | 名称 | 优先级 | 说明 |
 |------|------|--------|------|
 | TASK-019 | （已完成，见 2.2） | — | — |
-| TASK-020 | 代币传导结构化（Alpha） | P1 | PRD 9.2.1 |
+| TASK-020 | （已完成，见 2.3） | — | — |
 | TASK-021 | 链下尽调清单 | P1 | PRD 13.6、24.2.1 |
 | TASK-022 | （已完成，见 2.1） | — | — |
 | TASK-023 | 每日复盘区 + 手动覆盖占位 | P1 | PRD 24.3、21.7 |
@@ -820,21 +835,21 @@
 
 **下一步开发（二选一）：**
 
-1. **TASK-020** — 代币传导结构化（Alpha 卡，PRD 9.2.1）  
-2. **TASK-024** — 墨刀首页 UI 设计稿（建议 TASK-020/021/023 功能齐后再做整体稿）
+1. **TASK-021** — 链下尽调清单（重点跟踪项目，PRD 13.6）  
+2. **TASK-024** — 墨刀首页 UI 设计稿（建议 021/023 完成后再做整体稿）
 
-**墨刀稿面已具备：** 三卡底部数据时间 / 状态 / 来源折叠明细。仍须预留：今日复盘（TASK-023）、传导 / 尽调字段（020/021）。
+**墨刀稿面已具备：** 数据可信度三卡底栏、Alpha 传导类型/强度/依据块。仍须预留：复盘区（023）、尽调清单（021）。
 
-### 下一轮可直接复制给 Cursor 的执行 Prompt（TASK-020）
+### 下一轮可直接复制给 Cursor 的执行 Prompt（TASK-021）
 
 ```text
-请只完成 docs/TASKS.md 中的 TASK-020：Alpha 代币传导结构化。
+请只完成 docs/TASKS.md 中的 TASK-021：链下尽调 mock 与 Alpha/首页展示。
 
-约束：不接 API；不新增子路由；扩展 data/types 与 alpha-pool mock；遵循 PRD 9.2.1。
+约束：不接 API；不新增子路由；遵循 PRD 13.6、24.2.1。
 
-交付：传导类型 / 强度 / 依据字段 + Alpha 卡展示；冒烟测试更新。
+交付：DueDiligence 类型 + mock + 重点跟踪项目展示；冒烟更新。
 
-验收：对照 TASK-020 与附录 A。
+验收：对照 TASK-021 与附录 A。
 ```
 
 ---
@@ -868,7 +883,7 @@
 | 首页顺序 | 异动在强链/赛道/协议之前（PRD 12.1） | [x] |
 | 旧版模块折叠 | 底部 `<details>`，不占首屏 | [x] |
 | 数据可信度 | 来源/时间/状态（TASK-019） | [x] |
-| 代币传导结构化 | 类型/强度/依据（TASK-020） | [ ] |
+| 代币传导结构化 | 类型/强度/依据（TASK-020） | [x] |
 | 链下尽调 | 重点跟踪项目清单（TASK-021） | [ ] |
 | 每日复盘 | 3～5 字段可记录（TASK-023） | [ ] |
 | 移动端可读 | 决策卡置顶、纵向卡片（12.8） | [x] |

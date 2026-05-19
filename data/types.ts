@@ -234,6 +234,43 @@ export type MarketEnvironmentSnapshot = {
   topRisks: RiskTag[];
 };
 
+// --- V1.2 代币价值传导（TASK-020 · PRD 9.2.1）---
+
+/** PRD 9.2.1 — 传导类型 */
+export const TokenTransmissionType = {
+  CashFlow: "CashFlow",
+  Buyback: "Buyback",
+  Usage: "Usage",
+  GovernanceExpectation: "GovernanceExpectation",
+  None: "None"
+} as const;
+export type TokenTransmissionType =
+  (typeof TokenTransmissionType)[keyof typeof TokenTransmissionType];
+
+/** PRD 9.2.1 — 传导强度 */
+export const TokenTransmissionStrength = {
+  Strong: "Strong",
+  Medium: "Medium",
+  Weak: "Weak",
+  None: "None",
+  /** 数据缺失，不得乐观假设 */
+  Uncertain: "Uncertain"
+} as const;
+export type TokenTransmissionStrength =
+  (typeof TokenTransmissionStrength)[keyof typeof TokenTransmissionStrength];
+
+/** PRD 9.2.1 — 代币价值传导人工判断（MVP 标签，非公式评分） */
+export type TokenTransmissionJudgement = {
+  type: TokenTransmissionType;
+  strength: TokenTransmissionStrength;
+  /** 判断依据（Holder Revenue / buyback / burn / staking 等，人工摘录） */
+  basis: string[];
+  /** 是否影响 Alpha 评级 */
+  affectsAlphaGrade: boolean;
+  /** 人工备注：为何认为能 / 不能受益 */
+  note?: string;
+};
+
 // --- V1.2 Alpha 观察池（TASK-007）---
 
 /**
@@ -251,7 +288,8 @@ export type AlphaPoolEntry = {
   /** 为什么进池（可读短句） */
   thesisLine: string;
   coreMoveSummary: string;
-  tokenTransmission: string;
+  /** PRD 9.2.1 — 结构化代币传导（替代自由文本） */
+  tokenTransmission: TokenTransmissionJudgement;
   valuationSupplySummary: string;
   catalyst: string;
   maxRisk: string;

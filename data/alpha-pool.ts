@@ -1,5 +1,9 @@
 import type { AlphaPoolEntry } from "./types";
-import { AlphaLifecycleState } from "./types";
+import {
+  AlphaLifecycleState,
+  TokenTransmissionStrength,
+  TokenTransmissionType
+} from "./types";
 
 /**
  * V1.2 Alpha 观察池（静态 mock，共 10 条）。
@@ -17,7 +21,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
       "利率衍生品池 TVL 与 YT/PT 成交量同步走强，赛道叙事与链上使用数据初步共振",
     coreMoveSummary:
       "近 7 日主要池净流入居前，永续资金费率偏正；价格涨幅部分领先于 TVL 扩张节奏",
-    tokenTransmission: "使用型 + 费用捕获：协议收入增长与质押/治理预期相关，传导中等偏强",
+    tokenTransmission: {
+      type: TokenTransmissionType.Usage,
+      strength: TokenTransmissionStrength.Medium,
+      basis: ["协议费用", "质押激励", "治理投票权"],
+      affectsAlphaGrade: true,
+      note: "协议收入增长与质押相关，需验证费用是否持续而非单次激励"
+    },
     valuationSupplySummary:
       "FDV 相对协议收入仍偏高；30 天解锁占比可控，需跟踪 90 天大额解锁日历",
     catalyst: "新链部署池上线、与主流 LST 合作扩展",
@@ -47,7 +57,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     thesisLine:
       "永续成交量与 OI 维持高位，链上 perp 赛道资金集中度提升，协议收入可见",
     coreMoveSummary: "24h 永续成交量较 30 日均值 +22%，费率收入稳定",
-    tokenTransmission: "费用回购型预期为主，需持续验证收入分配与回购执行",
+    tokenTransmission: {
+      type: TokenTransmissionType.Buyback,
+      strength: TokenTransmissionStrength.Strong,
+      basis: ["协议费用", "回购/销毁预期", "Holder Revenue 讨论"],
+      affectsAlphaGrade: true,
+      note: "需持续验证收入分配与回购执行，非仅叙事"
+    },
     valuationSupplySummary: "流通占比仍低，长期解锁曲线需每周核对",
     catalyst: "新交易对上线、机构做市合作传闻（待核实）",
     maxRisk: "竞争 perp 平台补贴战；单一链依赖度高",
@@ -73,7 +89,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     sector: "RWA",
     thesisLine: "RWA 叙事升温 + 美债代币化产品讨论度上升，链上转账与成交量放大",
     coreMoveSummary: "CEX 成交量创近两周新高，社交热度与链上活跃不同步",
-    tokenTransmission: "治理 + 生态预期型为主，现金流向代币传导仍偏弱",
+    tokenTransmission: {
+      type: TokenTransmissionType.GovernanceExpectation,
+      strength: TokenTransmissionStrength.Weak,
+      basis: ["治理投票权", "生态合作预期"],
+      affectsAlphaGrade: true,
+      note: "现金流向代币传导仍偏弱，不宜因 RWA 叙事单独上调评级"
+    },
     valuationSupplySummary: "Mcap/FDV 差距大；需区分协议 AUM 与代币流通市值",
     catalyst: "监管友好司法辖区合作、新产品池开放",
     maxRisk: "叙事驱动大于收入验证；监管口径变化",
@@ -99,7 +121,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     sector: "DEX",
     thesisLine: "Solana 生态 DEX 聚合份额稳固，现货与 perp 路由量回升",
     coreMoveSummary: "7D 现货路由量 +18%，JUP 质押率小幅上升",
-    tokenTransmission: "使用型：路由费与治理激励相关，传导中等",
+    tokenTransmission: {
+      type: TokenTransmissionType.Usage,
+      strength: TokenTransmissionStrength.Medium,
+      basis: ["路由费用", "质押激励", "治理分配"],
+      affectsAlphaGrade: true,
+      note: "路由费与治理激励相关，需对比竞争 DEX 份额"
+    },
     valuationSupplySummary: "大额解锁已过峰值阶段，关注团队与生态基金剩余释放",
     catalyst: "新 perp 产品迭代、LFG 类激励是否重启",
     maxRisk: "Solana 生态整体 beta 高；竞争 DEX 分流",
@@ -125,7 +153,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     sector: "Lending",
     thesisLine: "多链借贷 TVL 企稳，利率环境利于借贷需求边际改善",
     coreMoveSummary: "以太坊主网借贷利用率回升，费用 7D 环比 +9%",
-    tokenTransmission: "治理 + 安全模块价值捕获，传导偏慢但路径清晰",
+    tokenTransmission: {
+      type: TokenTransmissionType.GovernanceExpectation,
+      strength: TokenTransmissionStrength.Medium,
+      basis: ["安全模块质押", "治理金库", "协议费用（未直接分红）"],
+      affectsAlphaGrade: true,
+      note: "价值捕获偏慢，路径依赖治理与模块设计，非 Holder Revenue 直分"
+    },
     valuationSupplySummary: "相对 DeFi 蓝筹估值不算极端；供给通胀温和",
     catalyst: "新市场上线、GHO 或其他稳定币模块数据",
     maxRisk: "宏观利率上行压制借贷需求；清算风险事件",
@@ -151,7 +185,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     sector: "Stablecoin / Derivatives",
     thesisLine: "USDe 供给扩张与衍生品收益叙事并行，资金费率环境偏正",
     coreMoveSummary: "USDe 市值 7D +6%，永续 OI 上升；与 B 层 USDe 需交叉验证",
-    tokenTransmission: "收益分享 + 治理预期；协议风险与代币波动耦合度高",
+    tokenTransmission: {
+      type: TokenTransmissionType.CashFlow,
+      strength: TokenTransmissionStrength.Medium,
+      basis: ["收益分享讨论", "质押/锁仓", "治理预期"],
+      affectsAlphaGrade: true,
+      note: "协议风险与代币波动耦合度高，需核对储备与对冲透明度"
+    },
     valuationSupplySummary: "FDV 高；需持续跟踪对冲敞口与储备透明度",
     catalyst: "新链 USDe 部署、合作交易所上币",
     maxRisk: "对冲失效或监管对合成稳定币态度变化为一票否决级",
@@ -178,7 +218,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     sector: "Oracle / RWA",
     thesisLine: "预言机需求随 RWA 与跨链消息增长，链上转账量同步放大",
     coreMoveSummary: "近 7 日涨幅 +4.2%，CCIP 相关新闻催化",
-    tokenTransmission: "使用费 + 质押安全模块，传导路径较成熟",
+    tokenTransmission: {
+      type: TokenTransmissionType.Usage,
+      strength: TokenTransmissionStrength.Medium,
+      basis: ["使用费", "质押安全模块", "节点运营需求"],
+      affectsAlphaGrade: true,
+      note: "传导路径较成熟，但仍需分离 CCIP 叙事与费用数据"
+    },
     valuationSupplySummary: "蓝筹估值区间，解锁压力相对可控",
     catalyst: "新链 CCIP 集成、机构储备数据合作",
     maxRisk: "若 RWA 叙事降温，短期涨幅或快速回吐",
@@ -204,7 +250,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     sector: "DeFi / L1",
     thesisLine: "Cosmos 生态 perp + DEX 模块活跃，链上费用收入边际改善",
     coreMoveSummary: "DEX 成交量 7D +14%，质押率稳定",
-    tokenTransmission: "费用燃烧 + 质押收益，传导中等偏强",
+    tokenTransmission: {
+      type: TokenTransmissionType.CashFlow,
+      strength: TokenTransmissionStrength.Medium,
+      basis: ["费用燃烧", "质押收益", "协议费用"],
+      affectsAlphaGrade: true,
+      note: "Cosmos 资金轮动快，需验证费用改善是否可持续"
+    },
     valuationSupplySummary: "通胀与解锁需对照质押收益率",
     catalyst: "新 perp 市场、机构做市计划",
     maxRisk: "Cosmos 生态资金轮动快，持续性待验证",
@@ -230,7 +282,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     sector: "DEX",
     thesisLine: "Uniswap v4 钩子生态预期仍在，以太坊 L2 路由量占比回升",
     coreMoveSummary: "L2 路由份额 +11% 7D，主网费用收入持平",
-    tokenTransmission: "治理预期型为主，费用开关叙事反复，传导偏弱",
+    tokenTransmission: {
+      type: TokenTransmissionType.GovernanceExpectation,
+      strength: TokenTransmissionStrength.Weak,
+      basis: ["治理投票权", "费用开关叙事"],
+      affectsAlphaGrade: true,
+      note: "典型强协议弱代币；费用开关未落地前不得上调评级"
+    },
     valuationSupplySummary: "大量 UNI 仍在金库，潜在治理释放为长期供给压力",
     catalyst: "v4 生态里程碑、费用开关治理投票",
     maxRisk: "代币价值捕获不明确；监管对 AMM 态度",
@@ -256,7 +314,13 @@ export const ALPHA_POOL: AlphaPoolEntry[] = [
     sector: "Identity / AI",
     thesisLine: "AI + 身份叙事间歇活跃，链上活跃地址波动大",
     coreMoveSummary: "社交讨论度上升但链上转账未同步放大",
-    tokenTransmission: "预期型为主，缺乏稳定现金流传导",
+    tokenTransmission: {
+      type: TokenTransmissionType.None,
+      strength: TokenTransmissionStrength.None,
+      basis: [],
+      affectsAlphaGrade: true,
+      note: "缺乏稳定现金流传导，仅适合低优先级观察"
+    },
     valuationSupplySummary: "解锁压力大，流通占比低",
     catalyst: "新地区试点、合作伙伴公告",
     maxRisk: "监管与隐私争议；数据质量不足以支撑高置信度跟踪",

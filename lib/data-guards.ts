@@ -14,6 +14,7 @@ import type {
 } from "@/data/types";
 import { DataProvenanceCardId } from "@/data/types";
 import { WATCHLIST_UNIVERSE } from "@/data/watchlist-universe";
+import { assertAlphaTokenTransmission } from "@/lib/token-transmission";
 
 const STRONG_CHAIN_TOP = 3;
 const STRONG_SECTOR_TOP = 3;
@@ -100,6 +101,8 @@ export function assertAlphaPool(
     new Set(ids).size === ids.length,
     "ALPHA_POOL ids must be unique"
   );
+
+  assertAlphaTokenTransmission(pool);
 }
 
 /** 校验 V1.2 各快照 asOf 日期一致 */
