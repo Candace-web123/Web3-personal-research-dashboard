@@ -1,6 +1,8 @@
 import type {
   AlphaGrade,
   AlphaLifecycleState,
+  DataFreshnessStatus,
+  DataUpdateFrequency,
   MarketDimensionScore,
   MarketRegime,
   RiskTag,
@@ -8,6 +10,7 @@ import type {
   UniverseAssetStatus,
   UserRiskProfile
 } from "@/data/types";
+import { DataFreshnessStatus as Freshness, DataUpdateFrequency as Freq } from "@/data/types";
 
 export const MARKET_REGIME_LABEL: Record<MarketRegime, string> = {
   StrongRiskOn: "强进攻",
@@ -156,4 +159,58 @@ export function sortRisksByPriority(
   return [...risks].sort(
     (a, b) => RISK_PRIORITY_RANK[a.priority] - RISK_PRIORITY_RANK[b.priority]
   );
+}
+
+const DATA_FRESHNESS_LABEL: Record<DataFreshnessStatus, string> = {
+  [Freshness.Normal]: "\u6b63\u5e38",
+  [Freshness.Delayed]: "\u5ef6\u8fdf",
+  [Freshness.Unavailable]: "\u4e0d\u53ef\u7528",
+  [Freshness.SourceConflict]: "\u53e3\u5f84\u51b2\u7a81",
+  [Freshness.ManualOverride]: "\u5df2\u624b\u52a8\u8986\u76d6"
+};
+
+const DATA_UPDATE_FREQ_LABEL: Record<DataUpdateFrequency, string> = {
+  [Freq.Daily]: "\u6bcf\u65e5",
+  [Freq.Weekly]: "\u6bcf\u5468",
+  [Freq.EventTriggered]: "\u4e8b\u4ef6\u89e6\u53d1"
+};
+
+export function formatDataFreshnessStatus(status: DataFreshnessStatus): string {
+  return DATA_FRESHNESS_LABEL[status] ?? status;
+}
+
+export function formatDataUpdateFrequency(
+  frequency: DataUpdateFrequency
+): string {
+  return DATA_UPDATE_FREQ_LABEL[frequency] ?? frequency;
+}
+
+export function dataFreshnessStatusTone(status: DataFreshnessStatus): string {
+  switch (status) {
+    case Freshness.Normal:
+      return "border-emerald-200 bg-emerald-50 text-emerald-900";
+    case Freshness.Delayed:
+      return "border-amber-200 bg-amber-50 text-amber-900";
+    case Freshness.SourceConflict:
+    case Freshness.ManualOverride:
+      return "border-violet-200 bg-violet-50 text-violet-900";
+    case Freshness.Unavailable:
+      return "border-rose-200 bg-rose-50 text-rose-950";
+    default:
+      return "border-zinc-200 bg-zinc-50 text-zinc-700";
+  }
+}
+
+export function dataFreshnessHintTone(status: DataFreshnessStatus): string {
+  switch (status) {
+    case Freshness.Delayed:
+      return "border-amber-100 bg-amber-50 text-amber-950";
+    case Freshness.SourceConflict:
+    case Freshness.ManualOverride:
+      return "border-violet-100 bg-violet-50 text-violet-950";
+    case Freshness.Unavailable:
+      return "border-rose-100 bg-rose-50 text-rose-950";
+    default:
+      return "border-zinc-200 bg-zinc-50 text-zinc-700";
+  }
 }

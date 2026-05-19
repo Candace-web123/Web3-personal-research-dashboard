@@ -570,6 +570,114 @@ export type DataProvenanceDailySnapshot = {
   cards: Record<DataProvenanceCardId, CardDataProvenanceSummary>;
 };
 
+// --- V1.2 实际仓位对比分析（TASK-024 · PRD 二十四章）---
+
+/** 分析模式：MVP 为 ManualRuleBased */
+export const ActualPositionAnalysisMode = {
+  /** 当前 MVP：手动录入 + 规则化对比 */
+  ManualRuleBased: "ManualRuleBased",
+  /** 未来：真实数据接入辅助 */
+  DataAssisted: "DataAssisted",
+  /** 未来：多源模型化分析 */
+  ModelAssisted: "ModelAssisted"
+} as const;
+export type ActualPositionAnalysisMode =
+  (typeof ActualPositionAnalysisMode)[keyof typeof ActualPositionAnalysisMode];
+
+/** 实际仓位相对参考框架的整体风格 */
+export const ActualPositionRiskStyle = {
+  Defensive: "Defensive",
+  Balanced: "Balanced",
+  Aggressive: "Aggressive",
+  Overheated: "Overheated",
+  Unknown: "Unknown"
+} as const;
+export type ActualPositionRiskStyle =
+  (typeof ActualPositionRiskStyle)[keyof typeof ActualPositionRiskStyle];
+
+/** 单类仓位与参考区间的对比状态 */
+export const ActualPositionCompareStatus = {
+  BelowRange: "BelowRange",
+  InRange: "InRange",
+  AboveRange: "AboveRange",
+  NeedsReview: "NeedsReview"
+} as const;
+export type ActualPositionCompareStatus =
+  (typeof ActualPositionCompareStatus)[keyof typeof ActualPositionCompareStatus];
+
+/** 仓位对比维度 */
+export const ActualPositionCategory = {
+  StablecoinCash: "StablecoinCash",
+  BtcEth: "BtcEth",
+  Alpha: "Alpha",
+  HighRisk: "HighRisk",
+  OutsideUniverse: "OutsideUniverse"
+} as const;
+export type ActualPositionCategory =
+  (typeof ActualPositionCategory)[keyof typeof ActualPositionCategory];
+
+/** 用户手动录入的实际仓位（MVP；图片仅本地预览） */
+export type ActualPositionInput = {
+  asOf: string;
+  stablecoinCashPercent: number;
+  btcEthPercent: number;
+  alphaPercent: number;
+  highRiskPercent: number;
+  outsideUniversePercent?: number;
+  concentrationLevel: "Low" | "Medium" | "High" | "Unknown";
+  topHoldingSymbol?: string;
+  topHoldingPercent?: number;
+  manuallyAdjusted: boolean;
+  note?: string;
+};
+
+/** 单类仓位偏差明细 */
+export type ActualPositionCategoryComparison = {
+  category: ActualPositionCategory;
+  actualPercent: number;
+  referenceRangeLabel: string;
+  status: ActualPositionCompareStatus;
+  explanation: string;
+};
+
+/** 最强方向一致性（规则化判断） */
+export type StrongestDirectionAlignment =
+  | "Aligned"
+  | "PartiallyAligned"
+  | "NotAligned"
+  | "Unknown";
+
+/** 个人仓位建议（规则化；需用户自行执行，非自动交易） */
+export type ActualPositionRecommendation = {
+  /** 建议动作（明确但不武断） */
+  action: string;
+  /** 判断依据 */
+  rationale: string;
+  /** 适用条件 */
+  condition: string;
+  /** 风险提醒 */
+  riskReminder: string;
+  /** 失效条件 */
+  invalidation: string;
+};
+
+/** 实际仓位对比分析结果 */
+export type ActualPositionCompareResult = {
+  asOf: string;
+  analysisMode: ActualPositionAnalysisMode;
+  overallStyle: ActualPositionRiskStyle;
+  conclusion: string;
+  comparisons: ActualPositionCategoryComparison[];
+  mismatches: string[];
+  /** 结构化个人仓位建议（页面优先展示） */
+  positionRecommendations: ActualPositionRecommendation[];
+  /** 建议动作摘要（与 positionRecommendations 对应，便于兼容） */
+  riskAdjustmentSuggestions: string[];
+  strongestDirectionAlignment: StrongestDirectionAlignment;
+  dataLimitations: string[];
+  futureDataNeeds?: string[];
+};
+
 /** PRD 19.2 — 首页今日决策卡展示模型（纯数据，无 React 依赖） */
 export type DecisionCardViewModel = {
   asOf: string;

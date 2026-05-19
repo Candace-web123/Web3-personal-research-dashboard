@@ -118,7 +118,15 @@ export type {
   CardDataProvenanceSummary,
   DataProvenance,
   DataProvenanceDailySnapshot,
-  DailyReviewSnapshot
+  DailyReviewSnapshot,
+  ActualPositionInput,
+  ActualPositionRecommendation,
+  ActualPositionCompareResult,
+  ActualPositionCategoryComparison,
+  ActualPositionAnalysisMode,
+  ActualPositionRiskStyle,
+  ActualPositionCompareStatus,
+  ActualPositionCategory
 } from "./types";
 export type { MarketDimensionScore } from "./types";
 export {

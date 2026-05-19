@@ -1,4 +1,5 @@
 import { AlphaPoolCard } from "@/components/dashboard/alpha-pool-card";
+import { ActualPositionCompareCard } from "@/components/dashboard/actual-position-compare-card";
 import { DailyReviewCard } from "@/components/dashboard/daily-review-card";
 import { BtcCycleCard } from "@/components/dashboard/btc-cycle-card";
 import { DecisionCard } from "@/components/dashboard/decision-card";
@@ -133,6 +134,16 @@ export default function Home() {
           description="综合市场环境、Alpha 观察池与决策卡聚合的风险提示；请结合仓位纪律独立判断。"
         />
       </div>
+
+      {/* 实际仓位对比分析：仓位建议 / 风险预警之后，每日复盘之前 */}
+      <ActualPositionCompareCard
+        positionAdviceSnapshot={positionAdviceSnapshot}
+        strongestDirection={
+          decisionModel.strongestDirection ??
+          strongSignalsSnapshot.strongestDirection
+        }
+        topRisks={decisionModel.topRisks}
+      />
 
       <DailyReviewCard snapshot={dailyReviewSnapshot} />
 
