@@ -4,6 +4,7 @@ import type {
   AlphaPoolEntry,
   BtcCycleSnapshot,
   DecisionCardViewModel,
+  DecisionJudgmentBasisItem,
   MarketEnvironmentSnapshot,
   MarketRegime,
   PositionAdviceSnapshot,
@@ -120,6 +121,48 @@ function buildHeadline(
   return `${regimeLabel} · BTC ${stageLabel} · ${modeHint}`;
 }
 
+function buildJudgmentBasis(
+  btcCycleSnapshot: BtcCycleSnapshot,
+  marketEnvironmentSnapshot: MarketEnvironmentSnapshot,
+  strongSignalsSnapshot: StrongSignalsDailySnapshot | undefined,
+  topRisks: RiskTag[]
+): { judgmentBasis: DecisionJudgmentBasisItem[]; coreRiskSummary: string } {
+  const riskHints = topRisks
+    .slice(0, 3)
+    .map((risk, index) => `${index + 1} ${risk.message}`)
+    .join(" · ");
+
+  const judgmentBasis: DecisionJudgmentBasisItem[] = [
+    {
+      title: "① BTC 周期依据",
+      body: `${formatBtcCycleStage(btcCycleSnapshot.cycleStage)}：${btcCycleSnapshot.currentJudgement} ${btcCycleSnapshot.btcActionBias}`,
+      tone: "btc"
+    },
+    {
+      title: "② 市场环境依据",
+      body: `评分 ${marketEnvironmentSnapshot.totalScore}/5（mock 五维合计）：${marketEnvironmentSnapshot.conclusion}`,
+      tone: "market"
+    },
+    {
+      title: "③ Alpha / 资金结构依据",
+      body:
+        strongSignalsSnapshot?.sectionHeadline ??
+        "结合强链 / 强赛道 / 强协议与 Alpha 观察池人工标注，传导与尽调未完全验证前保持观察。"
+      ,
+      tone: "alpha"
+    }
+  ];
+
+  return {
+    judgmentBasis,
+    coreRiskSummary: riskHints || "暂无高优先级风险摘要"
+  };
+}
+
+function formatBtcCycleStage(stage: string): string {
+  return BTC_CYCLE_STAGE_LABEL[stage] ?? stage;
+}
+
 function buildRiskReminder(
   positionAdvice: PositionAdviceSnapshot,
   observationOnly: boolean
@@ -170,6 +213,13 @@ export function buildDecisionCardModel(
     alphaTop10
   );
 
+  const { judgmentBasis, coreRiskSummary } = buildJudgmentBasis(
+    btcCycleSnapshot,
+    marketEnvironmentSnapshot,
+    strongSignalsSnapshot,
+    topRisks
+  );
+
   return {
     asOf,
     headline: buildHeadline(
@@ -191,6 +241,8 @@ export function buildDecisionCardModel(
     topRisks,
     conclusion: marketEnvironmentSnapshot.conclusion,
     riskReminder: buildRiskReminder(positionAdviceSnapshot, observationOnly),
-    strongestDirection: strongSignalsSnapshot?.strongestDirection
+    strongestDirection: strongSignalsSnapshot?.strongestDirection,
+    judgmentBasis,
+    coreRiskSummary
   };
 }

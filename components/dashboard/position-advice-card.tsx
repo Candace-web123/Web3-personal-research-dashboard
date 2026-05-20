@@ -4,10 +4,18 @@ import {
   formatMarketRegime,
   formatUserRiskProfile
 } from "@/lib/display-utils";
+import { parseAllocationRange } from "@/lib/actual-position-compare";
 
 export type PositionAdviceCardProps = {
   snapshot: PositionAdviceSnapshot;
+  variant?: "legacy" | "v4";
 };
+
+function rangeMidpoint(range: string): number {
+  const bounds = parseAllocationRange(range);
+  if (!bounds) return 0;
+  return Math.round((bounds.min + bounds.max) / 2);
+}
 
 function displayOrDash(value: string | undefined): string {
   const trimmed = value?.trim();
@@ -30,7 +38,129 @@ function AllocationRow({ label, range }: AllocationRowProps) {
   );
 }
 
-export function PositionAdviceCard({ snapshot }: PositionAdviceCardProps) {
+function PositionAdviceV4({ snapshot }: { snapshot: PositionAdviceSnapshot }) {
+  const cashMid = rangeMidpoint(snapshot.stablecoinAllocation);
+  const styleLabel = snapshot.observationOnly
+    ? "\u98ce\u683c\uff1a\u8c28\u614e\u89c2\u5bdf"
+    : "\u98ce\u683c\uff1a\u8ddf\u8e2a\u9a8c\u8bc1";
+
+  const rows = [
+    {
+      label: "\u7a33\u5b9a\u5e01 / \u73b0\u91d1\u7f13\u51b2",
+      range: snapshot.stablecoinAllocation,
+      note: snapshot.rationale[0]
+    },
+    {
+      label: "BTC / ETH \u4e3b\u6d41",
+      range: snapshot.btcEthAllocation,
+      note: snapshot.rationale[1]
+    },
+    {
+      label: "Alpha \u89c2\u5bdf\u6c60",
+      range: snapshot.alphaAllocation,
+      note: snapshot.rationale[2]
+    },
+    {
+      label: "\u9ad8\u98ce\u9669\u70ed\u70b9",
+      range: snapshot.highRiskHotspotAllocation,
+      note: snapshot.rationale[3]
+    }
+  ];
+
+  return (
+    <section
+      className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      aria-label="\u4e2a\u4eba\u98ce\u9669\u66b4\u9732\u53c2\u8003"
+    >
+      <header className="flex items-start justify-between gap-2">
+        <h2 className="text-base font-bold text-slate-800">
+          \u4e2a\u4eba\u98ce\u9669\u66b4\u9732\u53c2\u8003
+        </h2>
+        <span className="rounded-full border border-amber-100 bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+          {styleLabel}
+        </span>
+      </header>
+
+      <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+        <div
+          className="relative flex h-28 w-28 shrink-0 items-center justify-center rounded-full"
+          style={{
+            background: `conic-gradient(#4f46e5 0 ${cashMid}%, #e2e8f0 ${cashMid}% 100%)`
+          }}
+        >
+          <div className="flex h-20 w-20 flex-col items-center justify-center rounded-full bg-white text-center">
+            <span className="text-[10px] text-slate-400">\u73b0\u91d1\u6bd4</span>
+            <span className="text-lg font-bold text-slate-800">{cashMid}%</span>
+          </div>
+        </div>
+        <ul className="flex-1 space-y-2 text-xs">
+          {rows.map((row) => (
+            <li
+              key={row.label}
+              className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2"
+            >
+              <div className="flex justify-between font-semibold text-slate-700">
+                <span>{row.label}</span>
+                <span className="font-mono">{row.range}</span>
+              </div>
+              {row.note ? (
+                <p className="mt-1 text-[10px] leading-4 text-slate-500">{row.note}</p>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-xs leading-5 text-slate-700">
+        <span className="font-semibold">\u6295\u7814\u7ed3\u8bba\uff1a</span>
+        {snapshot.researchConclusion ?? snapshot.addPositionAdvice ?? "—"}
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <ConditionBox
+          title="\u2191 \u4e0a\u8c03\u98ce\u9669\u66b4\u9732\u6761\u4ef6"
+          items={snapshot.increaseExposureConditions ?? []}
+          tone="border-emerald-100 bg-emerald-50/50 text-emerald-900"
+        />
+        <ConditionBox
+          title="\u2193 \u4e0b\u8c03\u98ce\u9669\u66b4\u9732\u6761\u4ef6"
+          items={snapshot.decreaseExposureConditions ?? []}
+          tone="border-rose-100 bg-rose-50/50 text-rose-900"
+        />
+      </div>
+    </section>
+  );
+}
+
+function ConditionBox({
+  title,
+  items,
+  tone
+}: {
+  title: string;
+  items: string[];
+  tone: string;
+}) {
+  return (
+    <div className={`rounded-xl border p-3 ${tone}`}>
+      <p className="text-[10px] font-bold">{title}</p>
+      <ul className="mt-2 list-inside list-disc space-y-1 text-[10px] leading-4">
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export function PositionAdviceCard({
+  snapshot,
+  variant = "legacy"
+}: PositionAdviceCardProps) {
+  if (variant === "v4") {
+    return <PositionAdviceV4 snapshot={snapshot} />;
+  }
+
   const stanceLabel = snapshot.observationOnly
     ? "今日以观察为主，谨慎进攻"
     : snapshot.suitableToAddPosition

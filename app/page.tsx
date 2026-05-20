@@ -1,8 +1,9 @@
-import { AlphaPoolCard } from "@/components/dashboard/alpha-pool-card";
 import { ActualPositionCompareCard } from "@/components/dashboard/actual-position-compare-card";
-import { DailyReviewCard } from "@/components/dashboard/daily-review-card";
+import { AlphaPoolCard } from "@/components/dashboard/alpha-pool-card";
 import { BtcCycleCard } from "@/components/dashboard/btc-cycle-card";
-import { DecisionCard } from "@/components/dashboard/decision-card";
+import { DailyReviewCard } from "@/components/dashboard/daily-review-card";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { DecisionHeroCard } from "@/components/dashboard/decision-hero-card";
 import { MarketEnvironmentCard } from "@/components/dashboard/market-environment-card";
 import { MoversTop5Card } from "@/components/dashboard/movers-top5-card";
 import { PositionAdviceCard } from "@/components/dashboard/position-advice-card";
@@ -15,13 +16,14 @@ import {
   getAlphaPool,
   getAssets,
   getBtcCycleSnapshot,
+  getDailyReviewSnapshot,
+  getDataProvenanceDailySnapshot,
   getMarketEnvironmentSnapshot,
   getMoversTop5,
   getNarratives,
   getPositionAdviceSnapshot,
-  getStrongSignalsDailySnapshot,
-  getDataProvenanceDailySnapshot,
-  getDailyReviewSnapshot
+  getRiskWarningsDashboard,
+  getStrongSignalsDailySnapshot
 } from "@/data";
 import { DataProvenanceCardId } from "@/data/types";
 import { getCardDataProvenance } from "@/lib/data-provenance";
@@ -46,6 +48,7 @@ export default function Home() {
   const alphaTop10 = getAlphaTop10(getAlphaPool());
   const positionAdviceSnapshot = getPositionAdviceSnapshot();
   const dailyReviewSnapshot = getDailyReviewSnapshot();
+  const riskWarningsDashboard = getRiskWarningsDashboard();
 
   const strongChainTop3 = getStrongChainTop3(strongSignalsSnapshot.chains);
   const strongSectorTop3 = getStrongSectorTop3(strongSignalsSnapshot.sectors);
@@ -66,194 +69,180 @@ export default function Home() {
   const overview = calculateResearchOverview(assets);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col gap-6 p-6 text-zinc-900 sm:p-8">
-      <header className="border-b border-zinc-200 pb-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-          V1.2 每日投研 · 本地 mock
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold">Web3 个人投研工作台</h1>
-        <p className="mt-2 text-sm leading-6 text-zinc-600">
-          先判断环境与 BTC 周期，再跟踪资金流向、异动与 Alpha 观察池；以下为决策辅助信息，非投资建议。
-        </p>
-      </header>
+  <>
+      <DashboardHeader asOf={decisionModel.asOf} />
+      <main className="mx-auto max-w-[1248px] space-y-8 px-6 py-8">
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <DecisionHeroCard
+            model={decisionModel}
+            dataProvenance={getCardDataProvenance(
+              DataProvenanceCardId.Decision,
+              dataProvenanceSnapshot
+            )}
+          />
+          <div className="flex flex-col gap-6">
+            <BtcCycleCard snapshot={btcCycleSnapshot} variant="compact" />
+            <MarketEnvironmentCard
+              snapshot={marketEnvironmentSnapshot}
+              variant="compact"
+            />
+          </div>
+        </section>
 
-      <DecisionCard
-        model={decisionModel}
-        dataProvenance={getCardDataProvenance(
-          DataProvenanceCardId.Decision,
-          dataProvenanceSnapshot
-        )}
-      />
+        <MoversTop5Card movers={moversTop5} />
 
-      <BtcCycleCard
-        snapshot={btcCycleSnapshot}
-        dataProvenance={getCardDataProvenance(
-          DataProvenanceCardId.BtcCycle,
-          dataProvenanceSnapshot
-        )}
-      />
-
-      <MarketEnvironmentCard
-        snapshot={marketEnvironmentSnapshot}
-        dataProvenance={getCardDataProvenance(
-          DataProvenanceCardId.MarketEnvironment,
-          dataProvenanceSnapshot
-        )}
-      />
-
-      <MoversTop5Card movers={moversTop5} />
-
-      <section
-        className="flex flex-col gap-4"
-        aria-label="资金流向与结构性强信号"
-      >
-        <header className="rounded-lg border border-zinc-200 bg-white p-4">
-          <h2 className="text-lg font-semibold text-zinc-900">今日资金与结构</h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-800">
-            {strongSignalsSnapshot.sectionHeadline}
-          </p>
-          {strongSignalsSnapshot.sectionRiskNote?.trim() ? (
-            <p className="mt-3 rounded-md border border-amber-100 bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-950">
-              <span className="font-medium">区块风险提示：</span>
-              {strongSignalsSnapshot.sectionRiskNote}
+        <section aria-label="\u4eca\u65e5\u8d44\u91d1\u4e0e\u7ed3\u6784" className="space-y-4">
+          <header className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h2 className="text-base font-bold text-slate-800">
+              {"\u4eca\u65e5\u8d44\u91d1\u4e0e\u7ed3\u6784"}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {strongSignalsSnapshot.sectionHeadline}
             </p>
-          ) : null}
-        </header>
+            {strongSignalsSnapshot.sectionRiskNote?.trim() ? (
+              <p className="mt-3 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+                <span className="font-medium">{"\u533a\u5757\u98ce\u9669\u63d0\u793a\uff1a"}</span>
+                {strongSignalsSnapshot.sectionRiskNote}
+              </p>
+            ) : null}
+          </header>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <StrongChainTop entries={strongChainTop3} />
+            <StrongSectorTop entries={strongSectorTop3} />
+            <StrongProtocolTop entries={strongProtocolTop5} />
+          </div>
+        </section>
 
-        <StrongChainTop entries={strongChainTop3} />
-        <StrongSectorTop entries={strongSectorTop3} />
-        <StrongProtocolTop entries={strongProtocolTop5} />
-      </section>
+        <AlphaPoolCard entries={alphaTop10} />
 
-      <AlphaPoolCard entries={alphaTop10} />
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <PositionAdviceCard snapshot={positionAdviceSnapshot} variant="v4" />
+          <RiskWarningsCard risks={riskWarningsDashboard} variant="detailed" />
+        </section>
 
-      <div className="flex flex-col gap-4">
-        <PositionAdviceCard snapshot={positionAdviceSnapshot} />
-        <RiskWarningsCard
-          risks={decisionModel.topRisks}
-          description="综合市场环境、Alpha 观察池与决策卡聚合的风险提示；请结合仓位纪律独立判断。"
+        <ActualPositionCompareCard
+          positionAdviceSnapshot={positionAdviceSnapshot}
+          strongestDirection={
+            decisionModel.strongestDirection ??
+            strongSignalsSnapshot.strongestDirection
+          }
+          topRisks={decisionModel.topRisks}
         />
-      </div>
 
-      {/* 实际仓位对比分析：仓位建议 / 风险预警之后，每日复盘之前 */}
-      <ActualPositionCompareCard
-        positionAdviceSnapshot={positionAdviceSnapshot}
-        strongestDirection={
-          decisionModel.strongestDirection ??
-          strongSignalsSnapshot.strongestDirection
-        }
-        topRisks={decisionModel.topRisks}
-      />
+        <DailyReviewCard snapshot={dailyReviewSnapshot} />
 
-      <DailyReviewCard snapshot={dailyReviewSnapshot} />
+        <details className="rounded-2xl border border-slate-300 bg-slate-100/80">
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-slate-800 marker:content-none [&::-webkit-details-marker]:hidden">
+            {"\u65e7\u7248\u7814\u7a76\u6a21\u5757 / \u7814\u7a76\u6570\u636e\u8865\u5145\uff08\u70b9\u51fb\u5c55\u5f00\uff09"}
+          </summary>
+          <div className="flex flex-col gap-6 border-t border-slate-200 p-4">
+            <section
+              className="rounded-lg border border-zinc-200 bg-white p-4"
+              aria-label="\u6295\u7814\u6982\u89c8"
+            >
+              <h2 className="text-sm font-semibold text-zinc-800">{"\u6295\u7814\u6982\u89c8"}</h2>
+              <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div>
+                  <dt className="text-xs text-zinc-500">{"\u8ddf\u8e2a\u8d44\u4ea7\u6570"}</dt>
+                  <dd className="font-mono text-lg">{overview.totalAssets}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-zinc-500">{"\u7814\u7a76\u4e2d"}</dt>
+                  <dd className="font-mono text-lg">{overview.activeResearchCount}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-zinc-500">{"\u5e73\u5747\u7f6e\u4fe1\u5ea6"}</dt>
+                  <dd className="font-mono text-lg">
+                    {overview.averageConfidence === null
+                      ? "\u2014"
+                      : overview.averageConfidence.toFixed(1)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-zinc-500">{"\u9ad8\u98ce\u9669\u8d44\u4ea7"}</dt>
+                  <dd className="font-mono text-lg">{overview.highRiskCount}</dd>
+                </div>
+              </dl>
+            </section>
 
-      <details className="rounded-lg border border-zinc-300 bg-zinc-100/80">
-        <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-zinc-800 marker:content-none [&::-webkit-details-marker]:hidden">
-          旧版研究模块 / 研究数据补充（点击展开）
-        </summary>
-        <div className="flex flex-col gap-6 border-t border-zinc-200 p-4">
-          <section
-            className="rounded-lg border border-zinc-200 bg-white p-4"
-            aria-label="投研概览"
-          >
-            <h2 className="text-sm font-semibold text-zinc-800">投研概览</h2>
-            <dl className="mt-3 grid gap-2 sm:grid-cols-2">
-              <div>
-                <dt className="text-xs text-zinc-500">跟踪资产数</dt>
-                <dd className="font-mono text-lg">{overview.totalAssets}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-zinc-500">研究中</dt>
-                <dd className="font-mono text-lg">{overview.activeResearchCount}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-zinc-500">平均置信度</dt>
-                <dd className="font-mono text-lg">
-                  {overview.averageConfidence === null
-                    ? "—"
-                    : overview.averageConfidence.toFixed(1)}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs text-zinc-500">高风险资产</dt>
-                <dd className="font-mono text-lg">{overview.highRiskCount}</dd>
-              </div>
-            </dl>
-          </section>
-
-          <section
-            className="rounded-lg border border-zinc-200 bg-white p-4"
-            aria-label="资产观察表"
-          >
-            <h2 className="text-sm font-semibold text-zinc-800">资产观察（旧版）</h2>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[32rem] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-200 text-xs text-zinc-500">
-                    <th className="py-2 pr-3 font-medium">标的</th>
-                    <th className="py-2 pr-3 font-medium">赛道</th>
-                    <th className="py-2 pr-3 font-medium">状态</th>
-                    <th className="py-2 pr-3 font-medium">风险</th>
-                    <th className="py-2 font-medium">置信度</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assets.map((asset) => (
-                    <tr key={asset.id} className="border-b border-zinc-100">
-                      <td className="py-2 pr-3 font-mono font-medium">{asset.symbol}</td>
-                      <td className="py-2 pr-3 text-zinc-600">{asset.sector}</td>
-                      <td className="py-2 pr-3 text-zinc-600">{asset.researchStatus}</td>
-                      <td className="py-2 pr-3 text-zinc-600">{asset.riskLevel}</td>
-                      <td className="py-2 font-mono">{asset.confidenceScore}</td>
+            <section
+              className="rounded-lg border border-zinc-200 bg-white p-4"
+              aria-label="\u8d44\u4ea7\u89c2\u5bdf\u8868"
+            >
+              <h2 className="text-sm font-semibold text-zinc-800">
+                {"\u8d44\u4ea7\u89c2\u5bdf\uff08\u65e7\u7248\uff09"}
+              </h2>
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full min-w-[32rem] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-zinc-200 text-xs text-zinc-500">
+                      <th className="py-2 pr-3 font-medium">{"\u6807\u7684"}</th>
+                      <th className="py-2 pr-3 font-medium">{"\u8d5b\u9053"}</th>
+                      <th className="py-2 pr-3 font-medium">{"\u72b6\u6001"}</th>
+                      <th className="py-2 pr-3 font-medium">{"\u98ce\u9669"}</th>
+                      <th className="py-2 font-medium">{"\u7f6e\u4fe1\u5ea6"}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                  </thead>
+                  <tbody>
+                    {assets.map((asset) => (
+                      <tr key={asset.id} className="border-b border-zinc-100">
+                        <td className="py-2 pr-3 font-mono font-medium">{asset.symbol}</td>
+                        <td className="py-2 pr-3 text-zinc-600">{asset.sector}</td>
+                        <td className="py-2 pr-3 text-zinc-600">{asset.researchStatus}</td>
+                        <td className="py-2 pr-3 text-zinc-600">{asset.riskLevel}</td>
+                        <td className="py-2 font-mono">{asset.confidenceScore}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
 
-          <section
-            className="rounded-lg border border-zinc-200 bg-white p-4"
-            aria-label="市场叙事"
-          >
-            <h2 className="text-sm font-semibold text-zinc-800">市场叙事（旧版）</h2>
-            <ul className="mt-3 flex flex-col gap-3">
-              {narratives.map((narrative) => (
-                <li
-                  key={narrative.id}
-                  className="rounded-md border border-zinc-100 bg-zinc-50 px-3 py-2"
-                >
-                  <p className="font-medium text-zinc-900">{narrative.title}</p>
-                  <p className="mt-1 text-xs text-zinc-500">{narrative.sector}</p>
-                  <p className="mt-1 text-sm text-zinc-700">{narrative.signal}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
+            <section
+              className="rounded-lg border border-zinc-200 bg-white p-4"
+              aria-label="\u5e02\u573a\u53d9\u4e8b"
+            >
+              <h2 className="text-sm font-semibold text-zinc-800">{"\u5e02\u573a\u53d9\u4e8b\uff08\u65e7\u7248\uff09"}</h2>
+              <ul className="mt-3 flex flex-col gap-3">
+                {narratives.map((narrative) => (
+                  <li
+                    key={narrative.id}
+                    className="rounded-md border border-zinc-100 bg-zinc-50 px-3 py-2"
+                  >
+                    <p className="font-medium text-zinc-900">{narrative.title}</p>
+                    <p className="mt-1 text-xs text-zinc-500">{narrative.sector}</p>
+                    <p className="mt-1 text-sm text-zinc-700">{narrative.signal}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
 
-          <section
-            className="rounded-lg border border-zinc-200 bg-white p-4"
-            aria-label="AI 分析框架"
-          >
-            <h2 className="text-sm font-semibold text-zinc-800">AI 分析框架（占位）</h2>
-            <ul className="mt-3 flex flex-col gap-2">
-              {aiFramework.map((item) => (
-                <li
-                  key={item.id}
-                  className="rounded-md border border-zinc-100 px-3 py-2 text-sm"
-                >
-                  <p className="font-medium text-zinc-800">{item.dimension}</p>
-                  <p className="mt-1 text-zinc-600">{item.description}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </div>
-      </details>
+            <section
+              className="rounded-lg border border-zinc-200 bg-white p-4"
+              aria-label="AI \u5206\u6790\u6846\u67b6"
+            >
+              <h2 className="text-sm font-semibold text-zinc-800">
+                {"AI \u5206\u6790\u6846\u67b6\uff08\u5360\u4f4d\uff09"}
+              </h2>
+              <ul className="mt-3 flex flex-col gap-2">
+                {aiFramework.map((item) => (
+                  <li
+                    key={item.id}
+                    className="rounded-md border border-zinc-100 px-3 py-2 text-sm"
+                  >
+                    <p className="font-medium text-zinc-800">{item.dimension}</p>
+                    <p className="mt-1 text-zinc-600">{item.description}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        </details>
 
-      <footer className="border-t border-zinc-200 pt-4 text-center text-xs text-zinc-500">
-        数据来源：本地 mock · 仅供投研流程验证，不构成投资建议
-      </footer>
-    </main>
+        <footer className="border-t border-slate-200 pt-4 text-center text-xs text-slate-500">
+          {"\u6570\u636e\u6765\u6e90\uff1a\u672c\u5730 mock \u00b7 \u4ec5\u4f9b\u6295\u7814\u6d41\u7a0b\u9a8c\u8bc1\uff0c\u4e0d\u6784\u6210\u6295\u8d44\u5efa\u8bae"}
+        </footer>
+      </main>
+    </>
   );
 }

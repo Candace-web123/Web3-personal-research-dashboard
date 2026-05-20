@@ -840,6 +840,32 @@
 
 ---
 
+## 2.7 TASK-025：首页决策流程 / UI 产品结构优化（进行中）
+
+**阶段：** Phase 8｜**优先级：** P1｜**状态：** 进行中（`feature/task-025-ui-product-review`）
+
+**任务目标：** 在不改变守边界 MVP 能力的前提下，优化首页决策工作流与宽屏产品结构，使主线更清晰：**今日决策 → 风险暴露 → 实际仓位对比 → 个人仓位建议 → 每日复盘**。
+
+**实现位置：**
+
+- `components/dashboard/dashboard-header.tsx`：顶栏与版本标识
+- `components/dashboard/decision-hero-card.tsx`：今日决策 Hero
+- `components/dashboard/risk-warnings-card.tsx`：`variant="detailed"` 风险预警
+- `components/dashboard/position-advice-card.tsx`：`variant="v4"` 个人风险暴露参考
+- `app/page.tsx`：`max-w-[1248px]` 宽屏布局与模块顺序
+- `data/risk-warnings-dashboard.ts`：风险预警看板数据
+- `tests/smoke.test.mjs`：TASK-025 首页结构 / UI 组件断言
+
+**验收勾选：**
+
+- [x] `DashboardHeader` + `DecisionHeroCard` 接线
+- [x] BTC / 市场环境 `variant="compact"`
+- [x] 仓位建议 v4 + 风险预警 detailed
+- [x] 与 TASK-024 实际仓位对比卡共存且顺序正确
+- [ ] 与墨刀 `web3-research-v12_v4.html` 视觉细节完全对齐（可迭代）
+
+---
+
 ## 3. 推荐任务顺序
 
 > 原则：**一次只执行一个任务**；完成验收后再进入下一编号。
@@ -867,7 +893,8 @@
 21. TASK-020（代币传导）  
 22. TASK-021（链下尽调）  
 23. TASK-023（复盘区）  
-24. TASK-024（实际仓位对比分析 MVP，**已完成**）
+24. TASK-024（实际仓位对比分析 MVP，**已完成**）  
+25. TASK-025（首页决策流程 / UI 产品结构优化，**进行中**）
 
 并行建议：TASK-019 / 020 / 021 可在 TASK-022 完成后并行；**一次提交仍建议单任务**。
 
@@ -875,12 +902,13 @@
 
 ## 4. 当前建议执行任务
 
-**代码基线：** TASK-001～024 已完成；V1.2 首页主流程 + 实际仓位对比 + 复盘折叠区就绪。
+**代码基线：** TASK-001～024 已完成；TASK-025 进行中（V1.2 首页主流程 + 实际仓位对比 + 决策 Hero / 宽屏布局 + 复盘折叠区）。
 
 **下一步：**
 
-1. 补充手动覆盖 UI（PRD 21.7，可单开 TASK）
-2. 或墨刀首页 UI 设计稿（非代码任务，可与产品并行）
+1. 完成 TASK-025 墨刀宽屏 UI 细节对齐与验收
+2. 补充手动覆盖 UI（PRD 21.7，可单开 TASK）
+3. 或进入 PRD 第二十六章「未来数据接入」相关迭代
 
 ### 下一轮可直接复制给 Cursor 的执行 Prompt（TASK-024 · 墨刀）
 

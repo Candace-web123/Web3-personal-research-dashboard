@@ -7,6 +7,7 @@ import { MOVERS_TOP5 } from "./movers-top5";
 import { narratives } from "./narratives";
 import { POSITION_ADVICE_SNAPSHOT } from "./position-advice";
 import { DAILY_REVIEW_SNAPSHOT } from "./daily-review";
+import { RISK_WARNINGS_DASHBOARD } from "./risk-warnings-dashboard";
 import { DATA_PROVENANCE_DAILY_SNAPSHOT } from "./data-provenance";
 import { STRONG_SIGNALS_DAILY_SNAPSHOT } from "./strong-signals";
 import { WATCHLIST_UNIVERSE } from "./watchlist-universe";
@@ -64,6 +65,10 @@ export function getDailyReviewSnapshot() {
   return DAILY_REVIEW_SNAPSHOT;
 }
 
+export function getRiskWarningsDashboard() {
+  return RISK_WARNINGS_DASHBOARD;
+}
+
 /** V1.2 全部快照聚合（单一入口，供 lib / 页面消费） */
 export function getV12MockSnapshots() {
   return {
@@ -91,6 +96,7 @@ export { WATCHLIST_UNIVERSE } from "./watchlist-universe";
 export { STRONG_SIGNALS_DAILY_SNAPSHOT } from "./strong-signals";
 export { DATA_PROVENANCE_DAILY_SNAPSHOT } from "./data-provenance";
 export { DAILY_REVIEW_SNAPSHOT } from "./daily-review";
+export { RISK_WARNINGS_DASHBOARD } from "./risk-warnings-dashboard";
 
 // --- 类型与枚举 ---
 
@@ -120,13 +126,14 @@ export type {
   DataProvenanceDailySnapshot,
   DailyReviewSnapshot,
   ActualPositionInput,
-  ActualPositionRecommendation,
   ActualPositionCompareResult,
+  ActualPositionRecommendation,
   ActualPositionCategoryComparison,
   ActualPositionAnalysisMode,
   ActualPositionRiskStyle,
   ActualPositionCompareStatus,
-  ActualPositionCategory
+  ActualPositionCategory,
+  TomorrowPositionCondition
 } from "./types";
 export type { MarketDimensionScore } from "./types";
 export {

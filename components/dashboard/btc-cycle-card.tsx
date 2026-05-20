@@ -5,6 +5,7 @@ import { formatBtcCycleStage } from "@/lib/display-utils";
 export type BtcCycleCardProps = {
   snapshot: BtcCycleSnapshot;
   dataProvenance?: CardDataProvenanceSummary;
+  variant?: "full" | "compact";
 };
 
 function displayOrDash(value: string | undefined): string {
@@ -38,7 +39,50 @@ function MetricGroup({ title, items }: MetricGroupProps) {
   );
 }
 
-export function BtcCycleCard({ snapshot, dataProvenance }: BtcCycleCardProps) {
+function CompactBtcCycleCard({ snapshot }: { snapshot: BtcCycleSnapshot }) {
+  return (
+    <section
+      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      aria-label="BTC 周期指标"
+    >
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-sm font-bold text-slate-800">BTC 周期指标</h3>
+        <span className="rounded bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-blue-600">
+          {formatBtcCycleStage(snapshot.cycleStage)}
+        </span>
+      </div>
+      <dl className="space-y-3 text-sm">
+        <MetricRow label="价格" value={displayOrDash(snapshot.priceUsd)} />
+        <MetricRow label="MVRV" value={displayOrDash(snapshot.mvrv)} />
+        <MetricRow label="NUPL" value={displayOrDash(snapshot.nupl)} />
+        <MetricRow label="恐惧贪婪" value={displayOrDash(snapshot.fearGreedIndex)} />
+        <MetricRow label="ETF 流入" value={displayOrDash(snapshot.etfFlowSummary)} />
+      </dl>
+      <p className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-2 py-1.5 text-[10px] text-slate-500">
+        综合：{displayOrDash(snapshot.currentJudgement)}
+      </p>
+    </section>
+  );
+}
+
+function MetricRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <dt className="text-xs text-slate-500">{label}</dt>
+      <dd className="text-sm font-semibold text-slate-800">{value}</dd>
+    </div>
+  );
+}
+
+export function BtcCycleCard({
+  snapshot,
+  dataProvenance,
+  variant = "full"
+}: BtcCycleCardProps) {
+  if (variant === "compact") {
+    return <CompactBtcCycleCard snapshot={snapshot} />;
+  }
+
   const alphaObservationHint = snapshot.supportsAltAlphaObservation
     ? "可观察山寨 Alpha（观察池，非买入清单）"
     : "暂不适合扩展山寨 Alpha 观察";

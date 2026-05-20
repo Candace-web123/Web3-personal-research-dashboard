@@ -28,6 +28,33 @@ export const DAILY_REVIEW_SNAPSHOT: DailyReviewSnapshot = {
     "Worldcoin 监管与链上活跃背离是否持续",
     "恐惧贪婪处于贪婪区时的杠杆与清算风险"
   ],
+  tomorrowPositionConditions: [
+    {
+      title: "ETH/BTC 修复",
+      tone: "green",
+      body: "若 ETH/BTC 汇率回升 + DEX 活跃回升 → 提高 ETH 生态观察优先级"
+    },
+    {
+      title: "P0 持续",
+      tone: "amber",
+      body: "若链上大额转账 P0 风险持续 → 维持防守仓位，不新增风险暴露"
+    },
+    {
+      title: "Alpha 验证",
+      tone: "slate",
+      body: "若 Alpha 代币传导未验证 → 不扩大 Alpha 暴露，仅维持现有观察池"
+    },
+    {
+      title: "强链共振",
+      tone: "blue",
+      body: "若强链 / 强赛道共振延续 2–3 天 → 进入重点深挖，考虑适度上调"
+    },
+    {
+      title: "流动性转弱",
+      tone: "red",
+      body: "若稳定币流动性继续转弱 → 提高现金缓冲至 55%+，暂不支持新仓位"
+    }
+  ],
   notes:
     "今日未做新增仓位操作；复盘仅记录判断过程。手动覆盖关键数据功能留待后续迭代（PRD 21.7）。"
 };
