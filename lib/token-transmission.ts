@@ -20,67 +20,65 @@ const STRENGTH_LABEL: Record<TokenTransmissionStrength, string> = {
   [TokenTransmissionStrength.Uncertain]: "\u4e0d\u786e\u5b9a"
 };
 
-export function formatTokenTransmissionType(type: TokenTransmissionType): string {
+export function formatTokenTransmissionType(
+  type: TokenTransmissionJudgement["type"]
+): string {
   return TYPE_LABEL[type] ?? type;
 }
 
 export function formatTokenTransmissionStrength(
-  strength: TokenTransmissionStrength
+  strength: TokenTransmissionJudgement["strength"]
 ): string {
   return STRENGTH_LABEL[strength] ?? strength;
 }
 
-export function tokenTransmissionTypeTone(type: TokenTransmissionType): string {
+export function tokenTransmissionTypeTone(
+  type: TokenTransmissionJudgement["type"]
+): string {
   switch (type) {
     case TokenTransmissionType.CashFlow:
-      return "border-emerald-200 bg-emerald-50 text-emerald-900";
     case TokenTransmissionType.Buyback:
-      return "border-violet-200 bg-violet-50 text-violet-900";
     case TokenTransmissionType.Usage:
-      return "border-sky-200 bg-sky-50 text-sky-900";
+      return "border-emerald-200 bg-emerald-50 text-emerald-900";
     case TokenTransmissionType.GovernanceExpectation:
       return "border-amber-200 bg-amber-50 text-amber-900";
     default:
-      return "border-zinc-200 bg-zinc-50 text-zinc-700";
+      return "border-zinc-200 bg-zinc-100 text-zinc-700";
   }
 }
 
 export function tokenTransmissionStrengthTone(
-  strength: TokenTransmissionStrength
+  strength: TokenTransmissionJudgement["strength"]
 ): string {
   switch (strength) {
     case TokenTransmissionStrength.Strong:
-      return "text-emerald-700";
+      return "border-emerald-300 bg-emerald-50 text-emerald-950";
     case TokenTransmissionStrength.Medium:
-      return "text-sky-700";
+      return "border-sky-200 bg-sky-50 text-sky-900";
     case TokenTransmissionStrength.Weak:
-      return "text-amber-700";
     case TokenTransmissionStrength.Uncertain:
-      return "text-rose-700";
+      return "border-amber-200 bg-amber-50 text-amber-950";
     default:
-      return "text-zinc-500";
+      return "border-zinc-300 bg-zinc-100 text-zinc-700";
   }
 }
 
-function assertTransmission(judgement: TokenTransmissionJudgement, token: string): void {
-  if (!judgement.basis.length) {
-    throw new Error(`[token-transmission] ${token}: basis must be non-empty`);
-  }
-  if (
-    judgement.type === TokenTransmissionType.None &&
-    judgement.strength !== TokenTransmissionStrength.None &&
-    judgement.strength !== TokenTransmissionStrength.Uncertain
-  ) {
-    throw new Error(`[token-transmission] ${token}: None type requires None/Uncertain strength`);
-  }
-}
-
-/** 开发期校验 Alpha 传导字段完整性 */
+/** 开发期校验：A 级不得弱/无传导（PRD 9.2.1） */
 export function assertAlphaTokenTransmission(
-  entries: readonly AlphaPoolEntry[] = []
+  entries: readonly AlphaPoolEntry[]
 ): void {
   if (process.env.NODE_ENV === "production") return;
+
   for (const entry of entries) {
-    assertTransmission(entry.tokenTransmission, entry.token);
+    const { strength } = entry.tokenTransmission;
+    if (
+      entry.grade === "A" &&
+      (strength === TokenTransmissionStrength.Weak ||
+        strength === TokenTransmissionStrength.None)
+    ) {
+      throw new Error(
+        `[token-transmission] ${entry.token} grade A must not have weak/none transmission`
+      );
+    }
   }
 }

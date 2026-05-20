@@ -25,6 +25,8 @@ const requiredPaths = [
   "data/data-provenance.ts",
   "data/daily-review.ts",
   "components/dashboard/daily-review-card.tsx",
+  "components/dashboard/actual-position-compare-card.tsx",
+  "lib/actual-position-compare.ts",
   "lib/data-provenance.ts",
   "lib/token-transmission.ts",
   "components/dashboard/data-provenance-footer.tsx",
@@ -72,7 +74,7 @@ const pageMustInclude = [
   "<BtcCycleCard",
   "<MarketEnvironmentCard",
   "<ActualPositionCompareCard",
-  "actualPositionContext",
+  "positionAdviceSnapshot={positionAdviceSnapshot}",
   "DashboardHeader",
   "variant=\"compact\"",
   "variant=\"v4\"",
@@ -94,7 +96,9 @@ const pageMustInclude = [
   "dataProvenance={",
   "getDailyReviewSnapshot",
   "<DailyReviewCard",
-  "dailyReviewSnapshot"
+  "dailyReviewSnapshot",
+  "<ActualPositionCompareCard",
+  "topRisks={decisionModel.topRisks}"
 ];
 
 for (const snippet of pageMustInclude) {
@@ -362,30 +366,72 @@ assert.match(dashboardHeader, /V1\.2/);
 
 assert.match(dataGuards, /export function assertDailyReviewSnapshot/);
 
-// --- TASK-024：实际仓位对比分析 ---
+// --- TASK-024：实际仓位对比分析 MVP ---
 
+const actualCompareCard = readText(
+  "components/dashboard/actual-position-compare-card.tsx"
+);
 const actualCompareLib = readText("lib/actual-position-compare.ts");
-assert.match(actualCompareLib, /export function compareActualPosition/);
-assert.match(actualCompareLib, /positionRecommendations/);
-assert.match(actualCompareLib, /FORBIDDEN_RECOMMENDATION_PHRASES/);
 
 assert.match(typesSource, /ActualPositionInput/);
 assert.match(typesSource, /ActualPositionCompareResult/);
+assert.match(typesSource, /ActualPositionAnalysisMode/);
+assert.match(typesSource, /ActualPositionRecommendation/);
 
-const actualCompareCard = readText("components/dashboard/actual-position-compare-card.tsx");
 assert.match(actualCompareCard, /ActualPositionCompareCard/);
+assert.match(actualCompareCard, /image\/\*|type="file"/);
 assert.match(
   actualCompareCard,
-  /个人仓位建议/,
-  "actual-position-compare-card should include personal position advice section"
+  /\\u624b\\u52a8\\u5f55\\u5165|\\u624b\\u52a8\\u6821\\u6b63/
 );
-assert.match(actualCompareCard, /compareActualPosition/);
-assert.equal(
-  actualCompareCard.includes("fetch("),
-  false,
-  "actual-position-compare-card must not use fetch"
+assert.match(
+  actualCompareCard,
+  /\\u5f53\\u524d\\u7248\\u672c\\u4e0d\\u81ea\\u52a8\\u8bc6\\u522b/
+);
+assert.match(
+  actualCompareCard,
+  /\\u672a\\u6765\\u6570\\u636e\\u63a5\\u5165/
 );
 
+assert.match(actualCompareLib, /export function buildActualPositionCompareResult/);
+assert.match(actualCompareLib, /positionRecommendations/);
+
+assert.match(actualCompareCard, /\\u4e2a\\u4eba\\u4ed3\\u4f4d\\u5efa\\u8bae/);
+assert.match(actualCompareCard, /\\u5224\\u65ad\\u4f9d\\u636e/);
+assert.match(actualCompareCard, /\\u5931\\u6548\\u6761\\u4ef6/);
+assert.match(actualCompareCard, /positionRecommendations/);
+
+const forbiddenOutputPhrases = [
+  "必买",
+  "必卖",
+  "必涨",
+  "稳赚",
+  "梭哈",
+  "无脑加仓",
+  "立即满仓",
+  "保证收益",
+  "自动交易",
+  "自动下单",
+  "系统替你决策"
+];
+const libOutputTemplates = actualCompareLib
+  .replace(/export const FORBIDDEN_OUTPUT_PHRASES[\s\S]*?\] as const;/, "")
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .replace(/\/\/[^\n]*/g, "");
+for (const phrase of forbiddenOutputPhrases) {
+  assert.equal(
+    libOutputTemplates.includes(phrase),
+    false,
+    `lib/actual-position-compare.ts output templates must not include: ${phrase}`
+  );
+}
+assert.match(actualCompareLib, /FORBIDDEN_OUTPUT_PHRASES/);
+assert.match(actualCompareLib, /建议减仓高风险热点|建议降低高风险热点暴露/);
+
+assert.equal(actualCompareCard.includes("fetch("), false);
+assert.equal(actualCompareCard.includes("axios"), false);
+assert.equal(actualCompareLib.includes("fetch("), false);
+
 console.log(
-  "smoke test passed (V1.2 MVP + TASK-019/020/021/023/024)."
+  "smoke test passed (V1.2 MVP + TASK-019/020/021/023/024/025)."
 );

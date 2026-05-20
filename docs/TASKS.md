@@ -813,12 +813,56 @@
 
 ---
 
-## 2.6 守边界版后续任务（TASK-024，已完成）
+## 2.6 TASK-024：实际仓位对比分析 MVP（已完成）
 
-| 编号 | 名称 | 优先级 | 说明 |
-|------|------|--------|------|
-| TASK-023 | （已完成，见 2.5） | — | — |
-| TASK-024 | 实际仓位对比分析 MVP + 墨刀 V1.2 UI 对齐 | P1 | 手动录入 + 规则对比 + 个人仓位建议；宽屏布局对齐 `web3-research-v12_v4.html` |
+**阶段：** Phase 8｜**优先级：** P1｜**状态：** 已完成
+
+**任务目标：** 用户上传实际仓位截图（仅本地预览），手动录入 / 校正四类仓位比例，与系统「个人风险暴露参考框架」规则化对比；输出带依据的**个人仓位建议**（含判断依据 / 适用条件 / 风险提醒 / 失效条件）；明确 MVP 与未来阶段边界；**不自动交易、不自动下单**，禁止必买/必卖/稳赚类喊单。
+
+**实现位置：**
+
+- `data/types.ts`：`ActualPositionInput`、`ActualPositionCompareResult`、`ActualPositionAnalysisMode` 等
+- `lib/actual-position-compare.ts`：`buildActualPositionCompareResult`、`parseAllocationRange`
+- `components/dashboard/actual-position-compare-card.tsx`：`ActualPositionCompareCard`（client；`type="file"` + 本地预览）
+- `app/page.tsx`：仓位 / 风险之后、每日复盘之前
+- `tests/smoke.test.mjs`：TASK-024 断言
+
+**验收勾选：**
+
+- [x] 实际仓位上传（本地预览，不上传服务器）
+- [x] 手动校正四类核心比例 + 可选字段
+- [x] 与系统参考框架对比（偏差明细）
+- [x] 偏差诊断（总体结论 + 不妥之处）
+- [x] 当前 MVP：手动录入 + 规则化对比
+- [x] 未来阶段：真实数据 + 模型化分析（`futureDataNeeds` 预留）
+- [x] 个人仓位建议（`positionRecommendations`：动作 + 依据 + 条件 + 风险 + 失效）
+- [x] 产品边界：允许「建议减仓/加仓」类明确建议；禁止自动交易、必买必卖、保证收益
+
+---
+
+## 2.7 TASK-025：首页决策流程 / UI 产品结构优化（进行中）
+
+**阶段：** Phase 8｜**优先级：** P1｜**状态：** 进行中（`feature/task-025-ui-product-review`）
+
+**任务目标：** 在不改变守边界 MVP 能力的前提下，优化首页决策工作流与宽屏产品结构，使主线更清晰：**今日决策 → 风险暴露 → 实际仓位对比 → 个人仓位建议 → 每日复盘**。
+
+**实现位置：**
+
+- `components/dashboard/dashboard-header.tsx`：顶栏与版本标识
+- `components/dashboard/decision-hero-card.tsx`：今日决策 Hero
+- `components/dashboard/risk-warnings-card.tsx`：`variant="detailed"` 风险预警
+- `components/dashboard/position-advice-card.tsx`：`variant="v4"` 个人风险暴露参考
+- `app/page.tsx`：`max-w-[1248px]` 宽屏布局与模块顺序
+- `data/risk-warnings-dashboard.ts`：风险预警看板数据
+- `tests/smoke.test.mjs`：TASK-025 首页结构 / UI 组件断言
+
+**验收勾选：**
+
+- [x] `DashboardHeader` + `DecisionHeroCard` 接线
+- [x] BTC / 市场环境 `variant="compact"`
+- [x] 仓位建议 v4 + 风险预警 detailed
+- [x] 与 TASK-024 实际仓位对比卡共存且顺序正确
+- [ ] 与墨刀 `web3-research-v12_v4.html` 视觉细节完全对齐（可迭代）
 
 ---
 
@@ -849,7 +893,8 @@
 21. TASK-020（代币传导）  
 22. TASK-021（链下尽调）  
 23. TASK-023（复盘区）  
-24. TASK-024（验收 / 墨刀 UI，可与设计并行）
+24. TASK-024（实际仓位对比分析 MVP，**已完成**）  
+25. TASK-025（首页决策流程 / UI 产品结构优化，**进行中**）
 
 并行建议：TASK-019 / 020 / 021 可在 TASK-022 完成后并行；**一次提交仍建议单任务**。
 
@@ -857,12 +902,13 @@
 
 ## 4. 当前建议执行任务
 
-**代码基线：** TASK-001～024 已完成；V1.2 首页主流程 + 实际仓位对比 + 墨刀宽屏布局就绪。
+**代码基线：** TASK-001～024 已完成；TASK-025 进行中（V1.2 首页主流程 + 实际仓位对比 + 决策 Hero / 宽屏布局 + 复盘折叠区）。
 
 **下一步：**
 
-1. 补充手动覆盖 UI（PRD 21.7，可单开 TASK）
-2. 或进入 PRD 第二十六章「未来数据接入」相关迭代
+1. 完成 TASK-025 墨刀宽屏 UI 细节对齐与验收
+2. 补充手动覆盖 UI（PRD 21.7，可单开 TASK）
+3. 或进入 PRD 第二十六章「未来数据接入」相关迭代
 
 ### 下一轮可直接复制给 Cursor 的执行 Prompt（TASK-024 · 墨刀）
 
@@ -908,6 +954,7 @@
 | 代币传导结构化 | 类型/强度/依据（TASK-020） | [x] |
 | 链下尽调 | 重点跟踪项目清单（TASK-021） | [x] |
 | 每日复盘 | 3～5 字段可记录（TASK-023） | [x] |
+| 实际仓位对比分析 | 本地截图 + 手动比例 + 规则化对比（TASK-024） | [x] |
 | 移动端可读 | 决策卡置顶、纵向卡片（12.8） | [x] |
 | 冒烟测试 | `npm test` + `npm run build` | [x] |
 | PRD 文档 | `docs/PRD.md` 守边界版 | [x] |

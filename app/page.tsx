@@ -63,15 +63,6 @@ export default function Home() {
     strongSignalsSnapshot
   });
 
-  const actualPositionContext = {
-    positionAdvice: positionAdviceSnapshot,
-    decision: decisionModel,
-    marketEnvironment: marketEnvironmentSnapshot,
-    btcCycle: btcCycleSnapshot,
-    strongSignals: strongSignalsSnapshot,
-    risks: riskWarningsDashboard
-  };
-
   const assets = getAssets();
   const narratives = getNarratives();
   const aiFramework = getAiFramework();
@@ -129,7 +120,14 @@ export default function Home() {
           <RiskWarningsCard risks={riskWarningsDashboard} variant="detailed" />
         </section>
 
-        <ActualPositionCompareCard context={actualPositionContext} />
+        <ActualPositionCompareCard
+          positionAdviceSnapshot={positionAdviceSnapshot}
+          strongestDirection={
+            decisionModel.strongestDirection ??
+            strongSignalsSnapshot.strongestDirection
+          }
+          topRisks={decisionModel.topRisks}
+        />
 
         <DailyReviewCard snapshot={dailyReviewSnapshot} />
 

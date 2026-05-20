@@ -12,8 +12,9 @@ export type PositionAdviceCardProps = {
 };
 
 function rangeMidpoint(range: string): number {
-  const { min, max } = parseAllocationRange(range);
-  return Math.round((min + max) / 2);
+  const bounds = parseAllocationRange(range);
+  if (!bounds) return 0;
+  return Math.round((bounds.min + bounds.max) / 2);
 }
 
 function displayOrDash(value: string | undefined): string {

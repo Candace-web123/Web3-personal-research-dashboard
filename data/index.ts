@@ -128,7 +128,11 @@ export type {
   ActualPositionInput,
   ActualPositionCompareResult,
   ActualPositionRecommendation,
-  ActualPositionDeviation,
+  ActualPositionCategoryComparison,
+  ActualPositionAnalysisMode,
+  ActualPositionRiskStyle,
+  ActualPositionCompareStatus,
+  ActualPositionCategory,
   TomorrowPositionCondition
 } from "./types";
 export type { MarketDimensionScore } from "./types";
