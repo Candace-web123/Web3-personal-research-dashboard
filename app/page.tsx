@@ -1,12 +1,17 @@
 import { ActualPositionCompareCard } from "@/components/dashboard/actual-position-compare-card";
 import { AlphaPoolCard } from "@/components/dashboard/alpha-pool-card";
+import { AuditTrailCard } from "@/components/dashboard/audit-trail-card";
 import { BtcCycleCard } from "@/components/dashboard/btc-cycle-card";
 import { DailyReviewCard } from "@/components/dashboard/daily-review-card";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { DecisionHeroCard } from "@/components/dashboard/decision-hero-card";
 import { MarketEnvironmentCard } from "@/components/dashboard/market-environment-card";
+import { MarketStateCard } from "@/components/dashboard/market-state-card";
 import { MoversTop5Card } from "@/components/dashboard/movers-top5-card";
+import { PortfolioOverviewCard } from "@/components/dashboard/portfolio-overview-card";
 import { PositionAdviceCard } from "@/components/dashboard/position-advice-card";
+import { RiskCheckCard } from "@/components/dashboard/risk-check-card";
+import { RiskModeCard } from "@/components/dashboard/risk-mode-card";
 import { RiskWarningsCard } from "@/components/dashboard/risk-warnings-card";
 import { StrongChainTop } from "@/components/dashboard/strong-chain-top";
 import { StrongProtocolTop } from "@/components/dashboard/strong-protocol-top";
@@ -23,10 +28,13 @@ import {
   getNarratives,
   getPositionAdviceSnapshot,
   getRiskWarningsDashboard,
-  getStrongSignalsDailySnapshot
+  getStrongSignalsDailySnapshot,
+  getUserPortfolio
 } from "@/data";
 import { DataProvenanceCardId } from "@/data/types";
 import { getCardDataProvenance } from "@/lib/data-provenance";
+import { getAiDecisionSnapshot } from "@/lib/ai-decision-orchestrator";
+import { fetchLiveMarketData } from "@/lib/real-market-data";
 import { calculateResearchOverview } from "@/lib/research-overview";
 import {
   getStrongChainTop3,
@@ -39,7 +47,9 @@ import {
   getTopMovers5
 } from "@/lib/v12-decision";
 
-export default function Home() {
+export default async function Home() {
+  const liveData = await fetchLiveMarketData().catch(() => null);
+
   const btcCycleSnapshot = getBtcCycleSnapshot();
   const marketEnvironmentSnapshot = getMarketEnvironmentSnapshot();
   const strongSignalsSnapshot = getStrongSignalsDailySnapshot();
@@ -68,6 +78,24 @@ export default function Home() {
   const aiFramework = getAiFramework();
   const overview = calculateResearchOverview(assets);
 
+  // 浅拷贝避免 mutate 原始 USER_PORTFOLIO 常量（HMR 安全）
+  const rawPortfolio = getUserPortfolio();
+  const userPortfolio = {
+    ...rawPortfolio,
+    positions: rawPortfolio.positions.map((p) => ({ ...p })),
+  };
+  // 自动从实时数据填充市价（currentPriceUsd=0 的持仓）
+  if (liveData) {
+    for (const pos of userPortfolio.positions) {
+      if (pos.currentPriceUsd === 0) {
+        if (pos.symbol === "BTC" && liveData.btcPriceUsd != null) pos.currentPriceUsd = liveData.btcPriceUsd;
+        if (pos.symbol === "ETH" && liveData.ethPriceUsd != null) pos.currentPriceUsd = liveData.ethPriceUsd;
+      }
+    }
+  }
+
+  const aiSnapshot = getAiDecisionSnapshot(liveData ?? undefined, userPortfolio);
+
   return (
   <>
       <DashboardHeader asOf={decisionModel.asOf} />
@@ -90,6 +118,42 @@ export default function Home() {
         </section>
 
         <MoversTop5Card movers={moversTop5} />
+
+        <section aria-label="AI \u51b3\u7b56\u8f85\u52a9" className="space-y-6">
+          <header className="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 to-sky-50 p-5">
+            <div className="flex items-center gap-3">
+              <span className="rounded-full bg-violet-500 px-2.5 py-0.5 text-xs font-bold text-white">
+                AI \u5f15\u64ce
+              </span>
+              <h2 className="text-base font-bold text-slate-800">AI \u51b3\u7b56\u8f85\u52a9\u7cfb\u7edf</h2>
+              {aiSnapshot.liveFields.length > 0 ? (
+                <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-800">
+                  \u5b9e\u65f6\u6570\u636e\uff1a{aiSnapshot.liveFields.length} \u9879
+                </span>
+              ) : (
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  Demo \u6570\u636e
+                </span>
+              )}
+            </div>
+            <p className="mt-2 text-sm text-slate-600">
+              \u57fa\u4e8e\u5e02\u573a\u72b6\u6001\u673a\uff087 \u72b6\u6001 \u00d7 9 \u7ef4\u5ea6\uff09+ \u98ce\u9669\u6a21\u5f0f\u9009\u62e9\u5668 + \u6301\u4ed3\u504f\u79bb\u68c0\u67e5\u3002
+              \u5f15\u64ce\u81ea\u52a8\u5224\u5b9a\uff0c\u7ed3\u5408\u7528\u6237\u6301\u4ed3\u7ed9\u51fa\u7ed3\u6784\u5316\u7684\u4ed3\u4f4d\u548c\u98ce\u9669\u5efa\u8bae\u3002
+            </p>
+          </header>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <MarketStateCard snapshot={aiSnapshot} />
+            <RiskModeCard snapshot={aiSnapshot} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <PortfolioOverviewCard snapshot={aiSnapshot} />
+            <RiskCheckCard snapshot={aiSnapshot} />
+          </div>
+
+          <AuditTrailCard snapshot={aiSnapshot} />
+        </section>
 
         <section aria-label="\u4eca\u65e5\u8d44\u91d1\u4e0e\u7ed3\u6784" className="space-y-4">
           <header className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">

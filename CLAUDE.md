@@ -13,6 +13,8 @@ npm run dev        # Start dev server
 npm run build      # Production build
 npm run lint       # ESLint (next/core-web-vitals + next/typescript)
 npm test           # Run smoke tests (node tests/smoke.test.mjs)
+npm run report     # Generate daily AI research report (requires ANTHROPIC_API_KEY)
+npm run report:dry # Assemble report data without AI call (no API key needed)
 npx tsc --noEmit   # Type-check without emitting
 ```
 
@@ -53,3 +55,63 @@ Active tasks are documented in `docs/TASKS.md` (V1.2 MVP tasks). Completed TASK-
 - ~30 coins in watchlist universe; only Top 5 movers + Top 10 Alpha shown on homepage — never render the full 30-coin table
 - BTC as cycle anchor, not price display
 - Page order per PRD 12.1: Decision Hero → BTC cycle → Market environment → Movers Top 5 → Strong signals (chains/sectors/protocols) → Alpha Top 10 → Position advice → Risk warnings → Actual position compare → Daily review (collapsible) → Legacy modules (collapsible)
+
+## AI Decision Support System (V1.3)
+
+The project has been upgraded from a daily report generator to a full **AI Web3 Investment Decision Support System**. The agent no longer just writes reports — it makes structured market state judgments, position sizing recommendations, and risk control decisions based on rule frameworks.
+
+### System goals
+
+1. Improve decision quality — every judgment based on framework rules + data
+2. Reduce failure rate — proactively recommend defense in adverse conditions
+3. Control drawdowns — three-level drawdown response before losses expand
+4. Avoid emotional trading — identify FOMO, panic, revenge trading signals
+5. Improve position management — dynamically adjust risk exposure by market state
+6. Improve market stage accuracy — consistent judgments via state machine framework
+
+### Decision framework (mandatory order)
+
+Agent must follow this sequence for every analysis:
+
+1. **Determine market state** → use `knowledge/market-regime-framework.md` (7 states)
+2. **Select risk mode** → use `knowledge/position-sizing-framework.md` (4 modes)
+3. **Give position advice** → output specific structure + stop-loss levels
+4. **Scan emotional signals** → check for FOMO/panic/impulse patterns
+
+Skipping any step invalidates the analysis.
+
+### Knowledge base
+
+| File | Content |
+|------|---------|
+| `knowledge/market-regime-framework.md` | 7 market states × 9 dimensions: conditions, risk levels, position ranges, dos/don'ts, transition signals |
+| `knowledge/position-sizing-framework.md` | 4 risk modes: conservative/neutral/aggressive/risk-off. Drawdown control (3-level), add/reduce rules, anti-FOMO rules, emotional discipline |
+| `knowledge/btc-cycle-framework.md` | BTC 6-stage cycle: MVRV/NUPL/Puell matrix, indicator weights, position ranges per stage, transition signals |
+| `knowledge/product-rules.md` | Hard boundaries: forbidden phrases, position advice limits, no-auto-trade rule, output requirements |
+| `knowledge/web3-concepts.md` | Domain dictionary: stages, regimes, dimensions, tiers, transmission types, risk taxonomy, sector taxonomy |
+
+### Agent boundaries
+
+**Can do:**
+- Determine market state (7-state classification)
+- Give position range advice with specific percentages
+- Recommend reducing positions with rationale
+- Flag "not recommended" directions
+- Identify and warn about emotional trading signals
+- Generate structured daily decision brief
+
+**Cannot do:**
+- Execute trades or connect to exchanges
+- Give exact buy/sell prices (ranges only)
+- Promise returns or predict prices
+- Violate `FORBIDDEN_OUTPUT_PHRASES`
+- Give position advice without first determining market state
+- Use leverage (any mode)
+
+### Key hard constraints
+
+- Total position drawdown −15% → unconditional risk-off mode + 48h cooldown
+- No new positions when funding rate >0.15% or fear & greed >85
+- No new positions when BTC below 200D MA (conservative/neutral modes)
+- Single coin stop-loss: BTC −10%, ETH −12%, alts −8~−12%, hotspots −5%
+- 7 no-chase conditions defined in `knowledge/position-sizing-framework.md`

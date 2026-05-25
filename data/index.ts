@@ -10,6 +10,7 @@ import { DAILY_REVIEW_SNAPSHOT } from "./daily-review";
 import { RISK_WARNINGS_DASHBOARD } from "./risk-warnings-dashboard";
 import { DATA_PROVENANCE_DAILY_SNAPSHOT } from "./data-provenance";
 import { STRONG_SIGNALS_DAILY_SNAPSHOT } from "./strong-signals";
+import { USER_PORTFOLIO } from "./portfolio-input";
 import { WATCHLIST_UNIVERSE } from "./watchlist-universe";
 import type { AiFramework, Asset, Narrative } from "./types";
 
@@ -69,6 +70,10 @@ export function getRiskWarningsDashboard() {
   return RISK_WARNINGS_DASHBOARD;
 }
 
+export function getUserPortfolio() {
+  return USER_PORTFOLIO;
+}
+
 /** V1.2 全部快照聚合（单一入口，供 lib / 页面消费） */
 export function getV12MockSnapshots() {
   return {
@@ -97,6 +102,7 @@ export { STRONG_SIGNALS_DAILY_SNAPSHOT } from "./strong-signals";
 export { DATA_PROVENANCE_DAILY_SNAPSHOT } from "./data-provenance";
 export { DAILY_REVIEW_SNAPSHOT } from "./daily-review";
 export { RISK_WARNINGS_DASHBOARD } from "./risk-warnings-dashboard";
+export { USER_PORTFOLIO } from "./portfolio-input";
 
 // --- 类型与枚举 ---
 

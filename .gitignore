@@ -17,6 +17,10 @@ npm-debug.log*
 .idea/
 .vscode/
 
+# generated reports
+reports/*.md
+reports/*.json
+
 # os
 .DS_Store
 Thumbs.db
