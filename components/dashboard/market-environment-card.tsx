@@ -6,6 +6,7 @@ import type {
 } from "@/data/types";
 import {
   dimensionScoreTone,
+  displayOrDash,
   formatDimensionScore,
   formatMarketRegime,
   formatMarketScore
@@ -33,11 +34,6 @@ function scoreToBarWidth(score: MarketDimensionScore): string {
 
 function mockDisplayScore(totalScore: number): number {
   return Math.min(100, Math.max(0, Math.round(50 + totalScore * 6.5)));
-}
-
-function displayOrDash(value: string | undefined): string {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : "\u2014";
 }
 
 type DimensionTileProps = {

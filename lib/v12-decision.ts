@@ -12,6 +12,7 @@ import type {
   StrongSignalsDailySnapshot
 } from "@/data/types";
 import { AlphaLifecycleState } from "@/data/types";
+import { formatBtcCycleStage, formatMarketRegime } from "@/lib/display-utils";
 
 const TOP_MOVERS_CAP = 5;
 const ALPHA_TOP_CAP = 10;
@@ -38,22 +39,6 @@ const RISK_PRIORITY_RANK: Record<RiskTag["priority"], number> = {
   P1: 1,
   P2: 2,
   P3: 3
-};
-
-const MARKET_REGIME_LABEL: Record<MarketRegime, string> = {
-  StrongRiskOn: "强进攻",
-  NeutralRotation: "中性轮动",
-  Cautious: "谨慎",
-  Defensive: "防守"
-};
-
-const BTC_CYCLE_STAGE_LABEL: Record<string, string> = {
-  BottomAccumulation: "底部积累",
-  EarlyUptrend: "上涨早期",
-  MidUptrend: "上涨中期",
-  Overheated: "过热",
-  TopRisk: "顶部风险",
-  DowntrendDefensive: "下跌/防守"
 };
 
 export type BuildDecisionCardModelParams = {
@@ -115,8 +100,8 @@ function buildHeadline(
   btcCycleStage: string,
   observationOnly: boolean
 ): string {
-  const regimeLabel = MARKET_REGIME_LABEL[regime];
-  const stageLabel = BTC_CYCLE_STAGE_LABEL[btcCycleStage] ?? btcCycleStage;
+  const regimeLabel = formatMarketRegime(regime);
+  const stageLabel = formatBtcCycleStage(btcCycleStage);
   const modeHint = observationOnly ? "以观察为主" : "可小幅跟踪机会";
   return `${regimeLabel} · BTC ${stageLabel} · ${modeHint}`;
 }
@@ -157,10 +142,6 @@ function buildJudgmentBasis(
     judgmentBasis,
     coreRiskSummary: riskHints || "暂无高优先级风险摘要"
   };
-}
-
-function formatBtcCycleStage(stage: string): string {
-  return BTC_CYCLE_STAGE_LABEL[stage] ?? stage;
 }
 
 function buildRiskReminder(

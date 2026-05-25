@@ -1,17 +1,12 @@
 import { DataProvenanceFooter } from "@/components/dashboard/data-provenance-footer";
 import type { BtcCycleSnapshot, CardDataProvenanceSummary } from "@/data/types";
-import { formatBtcCycleStage } from "@/lib/display-utils";
+import { displayOrDash, formatBtcCycleStage } from "@/lib/display-utils";
 
 export type BtcCycleCardProps = {
   snapshot: BtcCycleSnapshot;
   dataProvenance?: CardDataProvenanceSummary;
   variant?: "full" | "compact";
 };
-
-function displayOrDash(value: string | undefined): string {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : "—";
-}
 
 type MetricGroupProps = {
   title: string;

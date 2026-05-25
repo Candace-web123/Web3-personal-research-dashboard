@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { StrongSignalMetric } from "@/data/types";
+import { displayOrDash } from "@/lib/display-utils";
 
 type StrongSignalEntryLayoutProps = {
   rank: number;
@@ -11,11 +12,6 @@ type StrongSignalEntryLayoutProps = {
   extraDataBlock?: ReactNode;
   riskNote?: string;
 };
-
-function displayOrDash(value: string | undefined): string {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : "—";
-}
 
 export function StrongSignalEntryLayout({
   rank,

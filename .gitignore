@@ -8,6 +8,7 @@ out/
 # debug / env
 npm-debug.log*
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo

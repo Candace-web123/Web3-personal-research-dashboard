@@ -214,3 +214,9 @@ export function dataFreshnessHintTone(status: DataFreshnessStatus): string {
       return "border-zinc-200 bg-zinc-50 text-zinc-700";
   }
 }
+
+/** Shared display helper: returns "—" for empty/undefined strings */
+export function displayOrDash(value: string | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : "—";
+}

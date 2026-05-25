@@ -8,6 +8,7 @@ import type {
 } from "@/data/types";
 import {
   alphaGradeTone,
+  displayOrDash,
   formatAlphaLifecycleState,
   riskPriorityTone
 } from "@/lib/display-utils";
@@ -53,11 +54,6 @@ function ddRiskTone(level: OffchainDueDiligenceRiskLevel): string {
     default:
       return "border-zinc-200 bg-zinc-100 text-zinc-700";
   }
-}
-
-function displayOrDash(value: string | undefined): string {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : "—";
 }
 
 type AlphaEntryRowProps = {

@@ -1,6 +1,7 @@
 import type { MoverTop5Entry } from "@/data/movers-top5";
 import type { UniverseAssetStatus } from "@/data/types";
 import {
+  displayOrDash,
   formatPercentChange,
   formatUniverseAssetStatus,
   percentChangeTone
@@ -11,11 +12,6 @@ export type MoversTop5CardProps = {
 };
 
 const MAX_ROWS = 5;
-
-function displayOrDash(value: string | undefined): string {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : "—";
-}
 
 function statusTone(status: UniverseAssetStatus): string {
   switch (status) {
