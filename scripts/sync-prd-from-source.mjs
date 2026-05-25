@@ -1,7 +1,21 @@
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const src = "d:/产品文档/Web3个人投研系统产品文档_V1.1_补充产品化规则版.md";
-const dst = "D:/AIProjects/web3-research-dashboard/docs/PRD.md";
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const src = process.env.PRD_SOURCE_PATH;
+const dst = path.join(projectRoot, "docs", "PRD.md");
 
-fs.mkdirSync("D:/AIProjects/web3-research-dashboard/docs", { recursive: true });
-fs.writeFileSync(dst, fs.readFileSync(src));
+if (!src) {
+  console.error("PRD_SOURCE_PATH environment variable is required.");
+  process.exit(1);
+}
+
+if (!fs.existsSync(src)) {
+  console.error(`Source file not found: ${src}`);
+  process.exit(1);
+}
+
+fs.mkdirSync(path.dirname(dst), { recursive: true });
+fs.copyFileSync(src, dst);
+console.log(`Copied ${src} -> ${dst}`);
