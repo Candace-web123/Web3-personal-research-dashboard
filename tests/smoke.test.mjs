@@ -371,6 +371,12 @@ assert.match(dataGuards, /export function assertDailyReviewSnapshot/);
 const actualCompareCard = readText(
   "components/dashboard/actual-position-compare-card.tsx"
 );
+const positionInputForm = readText(
+  "components/dashboard/position-input-form.tsx"
+);
+const positionCompareResult = readText(
+  "components/dashboard/position-compare-result.tsx"
+);
 const actualCompareLib = readText("lib/actual-position-compare.ts");
 
 assert.match(typesSource, /ActualPositionInput/);
@@ -379,27 +385,18 @@ assert.match(typesSource, /ActualPositionAnalysisMode/);
 assert.match(typesSource, /ActualPositionRecommendation/);
 
 assert.match(actualCompareCard, /ActualPositionCompareCard/);
-assert.match(actualCompareCard, /image\/\*|type="file"/);
-assert.match(
-  actualCompareCard,
-  /\\u624b\\u52a8\\u5f55\\u5165|\\u624b\\u52a8\\u6821\\u6b63/
-);
-assert.match(
-  actualCompareCard,
-  /\\u5f53\\u524d\\u7248\\u672c\\u4e0d\\u81ea\\u52a8\\u8bc6\\u522b/
-);
-assert.match(
-  actualCompareCard,
-  /\\u672a\\u6765\\u6570\\u636e\\u63a5\\u5165/
-);
+assert.match(positionInputForm, /image\/\*|type="file"/);
+assert.match(positionInputForm, /手动录入|手动校正/);
+assert.match(positionInputForm, /当前版本不自动识别/);
+assert.match(positionCompareResult, /未来数据接入/);
 
 assert.match(actualCompareLib, /export function buildActualPositionCompareResult/);
 assert.match(actualCompareLib, /positionRecommendations/);
 
-assert.match(actualCompareCard, /\\u4e2a\\u4eba\\u4ed3\\u4f4d\\u5efa\\u8bae/);
-assert.match(actualCompareCard, /\\u5224\\u65ad\\u4f9d\\u636e/);
-assert.match(actualCompareCard, /\\u5931\\u6548\\u6761\\u4ef6/);
-assert.match(actualCompareCard, /positionRecommendations/);
+assert.match(positionCompareResult, /个人仓位建议/);
+assert.match(positionCompareResult, /判断依据/);
+assert.match(positionCompareResult, /失效条件/);
+assert.match(positionCompareResult, /positionRecommendations/);
 
 const forbiddenOutputPhrases = [
   "必买",
