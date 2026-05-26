@@ -47,6 +47,8 @@ import {
   getTopMovers5
 } from "@/lib/v12-decision";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const liveData = await fetchLiveMarketData().catch(() => null);
 

@@ -5,7 +5,7 @@
 import type { PortfolioSnapshot } from "@/lib/portfolio";
 
 export const USER_PORTFOLIO: PortfolioSnapshot = {
-  asOf: "2026-05-25",
+  asOf: "2026-05-26",
   cashUsd: 25000,
   positions: [
     { asset: "Bitcoin", symbol: "BTC", amount: 0.5, costBasisUsd: 88000, currentPriceUsd: 0 },

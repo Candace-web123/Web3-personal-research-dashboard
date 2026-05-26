@@ -140,12 +140,12 @@ export async function fetchCoinGlassData(): Promise<{
         for (const item of frData) {
           if (typeof item !== "object" || item === null) continue;
           const r = item as Record<string, unknown>;
-          const rate = r.rate ?? r.fundingRate ?? r.uRate;
-          if (typeof rate === "number") {
-            // CoinGlass returns rate as percentage string or number,
-            // normalize to decimal (e.g. 0.01% → 0.0001)
-            const raw = rate > 1 ? rate / 100 : rate;
-            sum += raw;
+          const rawRate = r.rate ?? r.fundingRate ?? r.uRate;
+          const rate = typeof rawRate === "string" ? Number(rawRate) : typeof rawRate === "number" ? rawRate : null;
+          if (rate != null && !Number.isNaN(rate)) {
+            // CoinGlass returns rate as percentage; normalize to decimal (e.g. 0.01% → 0.0001)
+            const normalized = rate > 1 ? rate / 100 : rate;
+            sum += normalized;
             count += 1;
           }
         }
@@ -160,17 +160,20 @@ export async function fetchCoinGlassData(): Promise<{
       const oiData = oiJson?.data;
       if (oiData != null && typeof oiData === "object") {
         const d = oiData as Record<string, unknown>;
-        // Prefer pre-computed change rate from API
-        const changePct = d.changePercent ?? d.changeRate ?? d.h24Change;
-        if (typeof changePct === "number") {
+        // Prefer pre-computed change rate from API (handle both string and number)
+        const rawChange = d.changePercent ?? d.changeRate ?? d.h24Change;
+        const changePct = typeof rawChange === "string" ? Number(rawChange) : typeof rawChange === "number" ? rawChange : null;
+        if (changePct != null && !Number.isNaN(changePct)) {
           // Normalize: if >10 it's likely basis points or raw percentage
           oiChangeRate = Math.abs(changePct) > 10 ? changePct / 100 : changePct;
         }
-        // Fallback: compute from current OI vs average
+        // Fallback: compute from current OI vs average (handle string/number)
         if (oiChangeRate == null) {
-          const currentOI = d.openInterest ?? d.oi ?? d.value;
-          const avgOI = d.avgOpenInterest ?? d.avgOi ?? d.avgValue;
-          if (typeof currentOI === "number" && typeof avgOI === "number" && avgOI > 0) {
+          const rawOI = d.openInterest ?? d.oi ?? d.value;
+          const rawAvgOI = d.avgOpenInterest ?? d.avgOi ?? d.avgValue;
+          const currentOI = typeof rawOI === "string" ? Number(rawOI) : typeof rawOI === "number" ? rawOI : null;
+          const avgOI = typeof rawAvgOI === "string" ? Number(rawAvgOI) : typeof rawAvgOI === "number" ? rawAvgOI : null;
+          if (currentOI != null && avgOI != null && avgOI > 0 && !Number.isNaN(currentOI) && !Number.isNaN(avgOI)) {
             oiChangeRate = (currentOI - avgOI) / avgOI;
           }
         }
