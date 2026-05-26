@@ -1,6 +1,6 @@
 # Web3 Research Dashboard
 
-个人 Web3 投研工作台（V1.2 MVP + V1.3 AI 决策引擎）：单页仪表盘 + AI 投研决策辅助系统，全 mock 数据过渡中，界面语言为简体中文。
+个人 Web3 投研工作台（V1.3）：单页仪表盘 + AI 投研决策辅助系统，混合实时数据与 demo fallback，界面语言为简体中文。CoinGecko / Alternative.me / DeFiLlama / CoinGlass 四源实时数据已接入，其余字段 demo 兜底。
 
 ## 技术栈
 
@@ -32,8 +32,8 @@ data/  →  lib/  →  app/  →  components/dashboard/
 
 | 层级 | 目录 | 职责 |
 |------|------|------|
-| Mock 数据 | `data/` | 静态快照与 accessor；**仅通过** `data/index.ts` 对外暴露 |
-| 业务逻辑 | `lib/` | 纯函数，无 React / fetch；决策合成、校验、展示格式化 |
+| Mock 数据 | `data/` | 静态快照与 accessor；**仅通过** `data/index.ts` 对外暴露。`data/portfolio-input.ts` 为用户持仓编辑入口 |
+| 业务逻辑 | `lib/` | 纯函数，无 React；决策合成、校验、展示格式化。**例外：`lib/real-market-data.ts` 为唯一 fetch 边界** |
 | 应用壳 | `app/` | `page.tsx` 编排数据与组件；单路由 `/` |
 | UI 组件 | `components/dashboard/` | 纯展示，经 props 接收数据 |
 
@@ -50,9 +50,15 @@ knowledge/  +  prompts/  +  live API  →  scripts/run-daily-report.mjs  →  re
 | 脚本 | `scripts/` | 数据获取 → 上下文组装 → Anthropic API 调用 |
 | 输出 | `reports/` | 生成的每日报告（Markdown），gitignored |
 
+## V1.3 数据策略
+
+- **混合模式**：CoinGecko（BTC/ETH 价格）、Alternative.me（恐惧贪婪）、DeFiLlama（稳定币趋势）、CoinGlass（资金费率+OI）为实时 API；其余字段 demo fallback
+- **API 失败安全**：任意数据源超时/失败 → 对应字段回退 demo，页面不崩溃
+- **用户持仓**：编辑 `data/portfolio-input.ts` 即可更新持仓；BTC/ETH 市价自动从 CoinGecko 填充
+- **环境变量**：`COINGLASS_API_KEY`（可选，未设置则相关字段用 demo）、`ANTHROPIC_API_KEY`（仅日报 AI 生成需要）
+
 ## V1.2 MVP 约束
 
-- **仅 mock 数据**：无外部 API、无数据库、无 `fetch` / `axios`
 - **单页应用**：所有模块在 `/`，不新增子路由
 - **观察池 ≠ 买入清单**：文案避免绝对买卖建议；允许「建议减仓」并附理由
 - **首页展示范围**：观察池约 30 币，首页仅 Top 5 异动 + Top 10 Alpha，不渲染完整 30 币表

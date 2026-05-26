@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Web3 Research Dashboard",
-  description: "Local mock MVP — personal Web3 research workspace"
+  description: "Web3 investment research dashboard with AI decision support — hybrid live + demo data"
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {

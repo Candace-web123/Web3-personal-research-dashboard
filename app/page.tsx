@@ -34,7 +34,7 @@ import {
 import { DataProvenanceCardId } from "@/data/types";
 import { getCardDataProvenance } from "@/lib/data-provenance";
 import { getAiDecisionSnapshot } from "@/lib/ai-decision-orchestrator";
-import { fetchLiveMarketData } from "@/lib/real-market-data";
+import { fetchLiveMarketData, fetchAdditionalPrices } from "@/lib/real-market-data";
 import { calculateResearchOverview } from "@/lib/research-overview";
 import {
   getStrongChainTop3,
@@ -85,11 +85,25 @@ export default async function Home() {
     positions: rawPortfolio.positions.map((p) => ({ ...p })),
   };
   // 自动从实时数据填充市价（currentPriceUsd=0 的持仓）
-  if (liveData) {
+  const autoFillSymbols = userPortfolio.positions
+    .filter((p) => p.currentPriceUsd === 0)
+    .map((p) => p.symbol);
+  if (autoFillSymbols.length > 0) {
+    // BTC/ETH 优先从已获取的 liveData 直接填（省一次请求）
     for (const pos of userPortfolio.positions) {
       if (pos.currentPriceUsd === 0) {
-        if (pos.symbol === "BTC" && liveData.btcPriceUsd != null) pos.currentPriceUsd = liveData.btcPriceUsd;
-        if (pos.symbol === "ETH" && liveData.ethPriceUsd != null) pos.currentPriceUsd = liveData.ethPriceUsd;
+        if (pos.symbol === "BTC" && liveData?.btcPriceUsd != null) pos.currentPriceUsd = liveData.btcPriceUsd;
+        if (pos.symbol === "ETH" && liveData?.ethPriceUsd != null) pos.currentPriceUsd = liveData.ethPriceUsd;
+      }
+    }
+    // 其他币种通过 CoinGecko 批量查询
+    const remaining = autoFillSymbols.filter((s) => s !== "BTC" && s !== "ETH");
+    if (remaining.length > 0) {
+      const prices: Record<string, number> = await fetchAdditionalPrices(remaining).catch(() => ({}));
+      for (const pos of userPortfolio.positions) {
+        if (pos.currentPriceUsd === 0 && prices[pos.symbol] != null) {
+          pos.currentPriceUsd = prices[pos.symbol];
+        }
       }
     }
   }
@@ -304,7 +318,7 @@ export default async function Home() {
         </details>
 
         <footer className="border-t border-slate-200 pt-4 text-center text-xs text-slate-500">
-          {"\u6570\u636e\u6765\u6e90\uff1a\u672c\u5730 mock \u00b7 \u4ec5\u4f9b\u6295\u7814\u6d41\u7a0b\u9a8c\u8bc1\uff0c\u4e0d\u6784\u6210\u6295\u8d44\u5efa\u8bae"}
+          {"\u6570\u636e\u6765\u6e90\uff1aCoinGecko / Alternative.me / DeFiLlama / CoinGlass + \u672c\u5730 mock \u00b7 \u4ec5\u4f9b\u6295\u7814\u6d41\u7a0b\u9a8c\u8bc1\uff0c\u4e0d\u6784\u6210\u6295\u8d44\u5efa\u8bae"}
         </footer>
       </main>
     </>

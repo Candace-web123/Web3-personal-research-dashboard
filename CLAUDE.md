@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Web3 Research Dashboard — a personal Web3 investment research workspace built with Next.js 15 App Router. **V1.2 MVP, all mock data, single page at `/`.** Language is zh-CN throughout the UI.
+Web3 Research Dashboard — a personal Web3 investment research workspace built with Next.js 15 App Router. **V1.3: hybrid live + demo data, single page at `/`.** Language is zh-CN throughout the UI.
+
+**Current state:** P0–P3 complete. Market state engine, risk mode selector, portfolio calculator, and audit trail are all functional. 4 live data sources (CoinGecko, Alternative.me, DeFiLlama, CoinGlass) feed 6 of 11 data fields; remaining 5 fields fall back to demo. P4 (backtesting/review) is next.
 
 ## Commands
 
@@ -12,7 +14,7 @@ Web3 Research Dashboard — a personal Web3 investment research workspace built 
 npm run dev        # Start dev server
 npm run build      # Production build
 npm run lint       # ESLint (next/core-web-vitals + next/typescript)
-npm test           # Run smoke tests (node tests/smoke.test.mjs)
+npm test           # Run smoke tests (node tests/smoke.test.mjs) — V1.2 coverage only
 npm run report     # Generate daily AI research report (requires ANTHROPIC_API_KEY)
 npm run report:dry # Assemble report data without AI call (no API key needed)
 npx tsc --noEmit   # Type-check without emitting
@@ -20,45 +22,98 @@ npx tsc --noEmit   # Type-check without emitting
 
 ## Architecture
 
-**Data flow (strict layering):** `data/` → `lib/` → `app/page.tsx` → `components/dashboard/`
+**Data flow:** `data/` + live APIs → `lib/` → `app/page.tsx` → `components/dashboard/`
 
 | Layer | Directory | Role |
 |-------|-----------|------|
-| Mock data | `data/` | Static JSON-like snapshots with accessor functions (e.g., `getBtcCycleSnapshot()`). All exported via `data/index.ts` as the public API. |
-| Business logic | `lib/` | Pure functions, no React. Transformations, decision synthesis, guards (dev-only assertions), display formatting. |
-| App shell | `app/` | Single root `page.tsx` orchestrates data fetching and wiring to components. `layout.tsx` is minimal (metadata + `<body>`). |
-| UI components | `components/dashboard/` | Pure presentational components, receive data via props only. No data fetching, no business logic. |
+| Mock data | `data/` | Static JSON-like snapshots with accessor functions. `data/index.ts` is the sole public API. User-editable `data/portfolio-input.ts` for positions. |
+| Business logic | `lib/` | Pure functions, no React, no `window`. Decision engines, scoring, display helpers, guards. **Exception:** `lib/real-market-data.ts` does `fetch` — it is the single data boundary; all other lib files remain pure. |
+| App shell | `app/` | Single root `page.tsx` (async server component) orchestrates data fetching and wiring to components. `layout.tsx` is minimal (metadata + `<body>`). |
+| UI components | `components/dashboard/` | Pure presentational components, receive data via props only. No data fetching, no business logic. Server components except `ActualPositionCompareCard`. |
+
+### V1.3 AI engine pipeline (in `lib/`)
+
+```
+real-market-data.ts (fetch) → pipeline.ts (transform) → market-state-engine.ts (classify)
+                                                              ↓
+risk-mode-selector.ts ← market state + drawdown → portfolio.ts (PnL / allocation / risk check)
+                                                              ↓
+                         ai-decision-orchestrator.ts (merge live + demo → AiDecisionSnapshot)
+                                                              ↓
+                         audit.ts (decision record / summary)
+```
+
+| Module | Lines | Role |
+|--------|-------|------|
+| `lib/market-state-engine.ts` | 249 | 7 states × 9 dimensions, scoring-based classification, confidence calc |
+| `lib/pipeline.ts` | 72 | RawMarketData → MarketStateInput → assessMarketState(), pure transform |
+| `lib/risk-mode-selector.ts` | 213 | MarketRegime → 4 risk modes, drawdown override, P0 event handling |
+| `lib/portfolio.ts` | 140 | PnL calc, allocation breakdown, risk check against mode |
+| `lib/audit.ts` | 95 | DecisionRecord create / user action / outcome / summarize |
+| `lib/ai-decision-orchestrator.ts` | 146 | Wires all 5 engines, merge live + demo, produces AiDecisionSnapshot |
+| `lib/real-market-data.ts` | 206 | **Sole fetch boundary.** CoinGecko, Alternative.me, DeFiLlama, CoinGlass |
+
+### Live data sources
+
+| Source | Fields | Auth |
+|--------|--------|------|
+| CoinGecko | `btcPriceUsd`, `ethPriceUsd` | None (rate-limited) |
+| Alternative.me | `fearGreed` | None |
+| DeFiLlama | `stablecoinTrend` | None |
+| CoinGlass | `avgFundingRate`, `oiChangeRate` | `COINGLASS_API_KEY` env var |
+
+Fields still demo: `btc200dMa`, `btc200dMaSlope`, `ethBtcTrend`, `total3BtcTrend`, `etfFlowDirection`.
+
+### Knowledge base & report pipeline
+
+```
+knowledge/  +  prompts/  +  live APIs  →  scripts/run-daily-report.mjs  →  reports/
+```
+
+| Directory | Content |
+|-----------|---------|
+| `knowledge/` | 5 framework docs: market regime, position sizing, BTC cycle, product rules, Web3 concepts |
+| `prompts/` | System role prompt + daily report template |
+| `scripts/run-daily-report.mjs` | Assembles context, calls Anthropic API |
+| `reports/` | Generated reports (`.md` / `.json`), gitignored |
 
 ### Key rules
 
-- **`data/index.ts` is the sole public API** for all mock data. Components and lib should never import directly from individual `data/*.ts` files.
-- **Lib functions are pure and framework-agnostic** — no React, no `fetch`, no `window`. This keeps business logic portable and testable.
+- **`data/index.ts` is the sole public API** for mock data. Components and lib files import from `@/data`, never from individual `data/*.ts` files.
+- **Lib functions are pure** (except `real-market-data.ts`). No React, no `window`, no DOM. Business logic stays portable and testable.
+- **`lib/real-market-data.ts` is the only file allowed to `fetch`.** All API calls go through it; the rest of the codebase consumes its return values.
 - **Dev-only guard assertions** (`lib/data-guards.ts`) validate mock data invariants in development; they become no-ops in production (`NODE_ENV === "production"`).
 - **No sub-routes** — everything lives on `/`. Don't create `app/**/page.tsx` files.
-- **Mock data only** — no external API calls, no `fetch`, no `axios`, no database connections.
 - **Observation pool ≠ buy list** — all copy must avoid investment advice language. System allows "suggest reduce position" with rationale, forbids absolute buy/sell calls (enforced by `FORBIDDEN_OUTPUT_PHRASES` in `lib/actual-position-compare.ts`).
+- **Live data never breaks the page.** API failures/timeouts → null values → `mergeMarketData()` falls back to demo. Every fetcher has try/catch + timeout.
 
-### Mock data timeline alignment
+### Two MarketRegime types (intentional split)
 
-All V1.2 snapshots (`BTC_CYCLE_SNAPSHOT`, `MARKET_ENVIRONMENT_SNAPSHOT`, `POSITION_ADVICE_SNAPSHOT`, `STRONG_SIGNALS_DAILY_SNAPSHOT`, `DATA_PROVENANCE_DAILY_SNAPSHOT`, `DAILY_REVIEW_SNAPSHOT`) must share the same `asOf` date. Enforced by `assertV12SnapshotsAsOfAligned()`.
+- `data/types.ts` → **V1.2 4-state** (StrongRiskOn / NeutralRotation / Cautious / Defensive) — used by legacy V1.2 components
+- `lib/market-state-engine.ts` → **V1.3 7-state** (StrongTrendBull / BtcSoloRally / AltRotation / NeutralRange / Defensive / EuphoriaEnd / BearMarketBounce) — used by V1.3 AI engine and new components
+
+Do NOT mix them. V1.2 components consume from `@/data`; V1.3 components consume from `lib/ai-decision-orchestrator`.
 
 ### Tailwind styling conventions
 
-Tailwind v4 with `@tailwindcss/postcss`. Color encodings are semantic: emerald for positive/bullish, rose/red for negative/bearish, amber for warnings, zinc/slate for neutral. See `lib/display-utils.ts` for reusable tone helpers (e.g., `alphaGradeTone`, `riskPriorityTone`, `dimensionScoreTone`).
+Tailwind v4 with `@tailwindcss/postcss`. Color encodings are semantic: emerald for positive/bullish, rose/red for negative/bearish, amber for warnings, zinc/slate for neutral. See `lib/display-utils.ts` for reusable tone helpers.
 
 ## Task management
 
-Active tasks are documented in `docs/TASKS.md` (V1.2 MVP tasks). Completed TASK-001 through TASK-024; TASK-025 (UI/product review) is in progress. The old task file `tasks/TASKS_Web3_Research_MVP.md` is archived — do not execute tasks from it. PRD is at `docs/PRD.md`.
+- Completed: TASK-001 through TASK-025 (V1.2 MVP), P0–P3 (V1.3 AI engine + live data)
+- Next: P4 (backtesting / review)
+- Task file: `docs/TASKS.md` (V1.2 only; V1.3 tasks tracked in conversation)
+- Old `tasks/TASKS_Web3_Research_MVP.md` is archived — do not execute tasks from it
+- PRD: `docs/PRD.md`
 
-## Product constraints (V1.2)
+## Product constraints
 
 - ~30 coins in watchlist universe; only Top 5 movers + Top 10 Alpha shown on homepage — never render the full 30-coin table
 - BTC as cycle anchor, not price display
-- Page order per PRD 12.1: Decision Hero → BTC cycle → Market environment → Movers Top 5 → Strong signals (chains/sectors/protocols) → Alpha Top 10 → Position advice → Risk warnings → Actual position compare → Daily review (collapsible) → Legacy modules (collapsible)
+- Page order: Decision Hero → BTC cycle → Market environment → Movers Top 5 → **AI 决策辅助** (market state + risk mode + portfolio + risk check + audit) → Strong signals (chains/sectors/protocols) → Alpha Top 10 → Position advice → Risk warnings → Actual position compare → Daily review (collapsible) → Legacy modules (collapsible)
+- All V1.2 snapshots share the same `asOf` date (enforced by `assertV12SnapshotsAsOfAligned()`)
 
 ## AI Decision Support System (V1.3)
-
-The project has been upgraded from a daily report generator to a full **AI Web3 Investment Decision Support System**. The agent no longer just writes reports — it makes structured market state judgments, position sizing recommendations, and risk control decisions based on rule frameworks.
 
 ### System goals
 

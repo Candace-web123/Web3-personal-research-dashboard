@@ -19,6 +19,7 @@ import { fileURLToPath } from "url";
 
 // dynamic import: tsx handles .ts → .mjs interop
 const { buildMarketStateInput } = await import("../lib/pipeline.ts");
+const { fetchStablecoinTrend, fetchCoinGlassData } = await import("../lib/real-market-data.ts");
 
 // ---------------------------------------------------------------------------
 // 0. 路径常量
@@ -407,14 +408,18 @@ async function main() {
   const systemPrompt = loadSystemPrompt();
   const template = loadReportTemplate();
 
-  // 获取实时数据
-  const [coinGeckoData, fearGreedData] = await Promise.all([
+  // 获取实时数据（CoinGecko / FearGreed 用脚本内置 fetcher，Stablecoin / CoinGlass 复用 lib）
+  const [coinGeckoData, fearGreedData, stablecoinTrend, coinGlassData] = await Promise.all([
     fetchCoinGeckoData(),
-    fetchFearGreed()
+    fetchFearGreed(),
+    fetchStablecoinTrend(),
+    fetchCoinGlassData()
   ]);
 
   if (!coinGeckoData) console.log("[warn] CoinGecko data unavailable — using mock fallback");
   if (!fearGreedData) console.log("[warn] Fear & Greed unavailable — using mock fallback");
+  if (!stablecoinTrend) console.log("[warn] Stablecoin trend unavailable — using mock fallback");
+  if (!coinGlassData?.avgFundingRate && !coinGlassData?.oiChangeRate) console.log("[warn] CoinGlass data unavailable — using mock fallback");
 
   // 运行市场状态机
   console.log("[engine] Running market state engine...");
@@ -426,10 +431,10 @@ async function main() {
     ethBtcTrend: null,
     total3BtcTrend: null,
     etfFlowDirection: null,
-    stablecoinTrend: null,
+    stablecoinTrend: stablecoinTrend ?? null,
     fearGreed: fearGreedData?.value != null ? Number(fearGreedData.value) : null,
-    avgFundingRate: null,
-    oiChangeRate: null,
+    avgFundingRate: coinGlassData?.avgFundingRate ?? null,
+    oiChangeRate: coinGlassData?.oiChangeRate ?? null,
   };
   const pipelineResult = buildMarketStateInput(rawData);
   console.log(`       Regime: ${pipelineResult.assessment.regimeLabel} (confidence: ${pipelineResult.assessment.confidence}, hitCount: ${pipelineResult.assessment.hitCount})`);

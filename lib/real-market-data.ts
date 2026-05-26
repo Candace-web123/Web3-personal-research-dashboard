@@ -69,7 +69,7 @@ async function fetchFearGreed(): Promise<number | null> {
 // DeFiLlama: 稳定币总市值趋势
 // ---------------------------------------------------------------------------
 
-async function fetchStablecoinTrend(): Promise<"up" | "flat" | "down" | null> {
+export async function fetchStablecoinTrend(): Promise<"up" | "flat" | "down" | null> {
   try {
     const url = "https://stablecoins.llama.fi/stablecoins?includePrices=true";
     const res = await fetchWithTimeout(url, {}, 10000);
@@ -106,7 +106,7 @@ async function fetchStablecoinTrend(): Promise<"up" | "flat" | "down" | null> {
 // Docs: coinglassSecret header 传 API key
 // ---------------------------------------------------------------------------
 
-async function fetchCoinGlassData(): Promise<{
+export async function fetchCoinGlassData(): Promise<{
   avgFundingRate: number | null;
   oiChangeRate: number | null;
 }> {
@@ -203,4 +203,76 @@ export async function fetchLiveMarketData(): Promise<LiveMarketData> {
     avgFundingRate: glass.avgFundingRate,
     oiChangeRate: glass.oiChangeRate,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Multi-coin price lookup — 用于持仓自动填价
+// ---------------------------------------------------------------------------
+
+/** 常见代币 symbol → CoinGecko API id 映射（按需扩展） */
+const SYMBOL_TO_GECKO_ID: Record<string, string> = {
+  BTC: "bitcoin",
+  ETH: "ethereum",
+  SOL: "solana",
+  LINK: "chainlink",
+  RNDR: "render-token",
+  ARB: "arbitrum",
+  ONDO: "ondo-finance",
+  TAO: "bittensor",
+  HYPE: "hyperliquid",
+  PENDLE: "pendle",
+  UNI: "uniswap",
+  AAVE: "aave",
+  OP: "optimism",
+  MATIC: "polygon",
+  DOT: "polkadot",
+  AVAX: "avalanche-2",
+  ATOM: "cosmos",
+  NEAR: "near",
+  INJ: "injective-protocol",
+  TIA: "celestia",
+  SUI: "sui",
+  SEI: "sei-network",
+  APT: "aptos",
+  LDO: "lido-dao",
+  ENA: "ethena",
+  JTO: "jito-governance-token",
+  EIGEN: "eigenlayer",
+  WLD: "worldcoin-wld",
+  STRK: "starknet",
+};
+
+export function getCoinGeckoId(symbol: string): string | undefined {
+  return SYMBOL_TO_GECKO_ID[symbol.toUpperCase()];
+}
+
+export async function fetchAdditionalPrices(
+  symbols: string[],
+): Promise<Record<string, number>> {
+  const result: Record<string, number> = {};
+  const geckoIds: { symbol: string; id: string }[] = [];
+
+  for (const sym of symbols) {
+    const id = getCoinGeckoId(sym);
+    if (id) geckoIds.push({ symbol: sym.toUpperCase(), id });
+  }
+
+  if (geckoIds.length === 0) return result;
+
+  try {
+    const idsParam = geckoIds.map((g) => g.id).join(",");
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${idsParam}&vs_currencies=usd`;
+    const res = await fetchWithTimeout(url, { headers: { Accept: "application/json" } });
+    if (!res?.ok) return result;
+    const json = await res.json();
+
+    for (const { symbol, id } of geckoIds) {
+      const price = json?.[id]?.usd;
+      if (typeof price === "number") result[symbol] = price;
+    }
+  } catch {
+    // silent fallback
+  }
+
+  return result;
 }
