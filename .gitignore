@@ -21,6 +21,9 @@ npm-debug.log*
 reports/*.md
 reports/*.json
 
+# runtime decision logs
+logs/
+
 # os
 .DS_Store
 Thumbs.db

@@ -33,7 +33,9 @@ import {
 } from "@/data";
 import { DataProvenanceCardId } from "@/data/types";
 import { getCardDataProvenance } from "@/lib/data-provenance";
-import { getAiDecisionSnapshot } from "@/lib/ai-decision-orchestrator";
+import { getAiDecisionWithPipeline } from "@/lib/ai-decision-orchestrator";
+import { appendDecisionRecord } from "@/lib/decision-history";
+import crypto from "node:crypto";
 import { fetchLiveMarketData, fetchAdditionalPrices } from "@/lib/real-market-data";
 import { calculateResearchOverview } from "@/lib/research-overview";
 import {
@@ -110,7 +112,19 @@ export default async function Home() {
     }
   }
 
-  const aiSnapshot = getAiDecisionSnapshot(liveData ?? undefined, userPortfolio);
+  const { snapshot: aiSnapshot, pipeline } = getAiDecisionWithPipeline(liveData ?? undefined, userPortfolio);
+
+  // P4-1: 持久化决策记录（跳过构建阶段；异步写入不阻塞渲染；失败静默忽略）
+  appendDecisionRecord({
+    version: 1,
+    requestId: `${new Date().toISOString().slice(0, 10)}-${crypto.randomUUID().slice(0, 8)}`,
+    recordedAt: new Date().toISOString(),
+    asOf: userPortfolio.asOf,
+    snapshot: aiSnapshot,
+    liveInput: liveData,
+    portfolioInput: userPortfolio,
+    pipelineResult: pipeline,
+  }).catch(() => {});
 
   return (
   <>

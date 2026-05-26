@@ -3,7 +3,7 @@
 // 支持 Partial<RawMarketData> 混入真实数据，其余自动 fallback demo
 
 import type { MarketStateResult } from "./market-state-engine";
-import type { RawMarketData } from "./pipeline";
+import type { RawMarketData, PipelineResult } from "./pipeline";
 import { buildMarketStateInput } from "./pipeline";
 import type { RiskModeResult, DrawdownLevel } from "./risk-mode-selector";
 import { selectRiskMode } from "./risk-mode-selector";
@@ -21,6 +21,11 @@ export type AiDecisionSnapshot = {
   recentDecisions: DecisionRecord[];
   auditSummary: AuditSummary;
   liveFields: string[];
+};
+
+export type AiDecisionWithPipeline = {
+  snapshot: AiDecisionSnapshot;
+  pipeline: PipelineResult;
 };
 
 // ---------------------------------------------------------------------------
@@ -117,11 +122,11 @@ function mergeMarketData(
 // Public API
 // ---------------------------------------------------------------------------
 
-export function getAiDecisionSnapshot(
+export function getAiDecisionWithPipeline(
   rawDataOverrides?: Partial<RawMarketData>,
   portfolio?: PortfolioSnapshot,
   drawdown?: DrawdownLevel,
-): AiDecisionSnapshot {
+): AiDecisionWithPipeline {
   const { data, liveKeys } = mergeMarketData(rawDataOverrides);
   const pipeline = buildMarketStateInput(data);
   const riskMode = selectRiskMode(pipeline.assessment, drawdown ?? "none");
@@ -133,7 +138,7 @@ export function getAiDecisionSnapshot(
   const decisions = getDemoDecisions();
   const auditSummary = summarizeDecisions(decisions);
 
-  return {
+  const snapshot: AiDecisionSnapshot = {
     asOf: pf.asOf,
     marketState: pipeline.assessment,
     riskMode,
@@ -143,4 +148,14 @@ export function getAiDecisionSnapshot(
     auditSummary,
     liveFields: liveKeys,
   };
+
+  return { snapshot, pipeline };
+}
+
+export function getAiDecisionSnapshot(
+  rawDataOverrides?: Partial<RawMarketData>,
+  portfolio?: PortfolioSnapshot,
+  drawdown?: DrawdownLevel,
+): AiDecisionSnapshot {
+  return getAiDecisionWithPipeline(rawDataOverrides, portfolio, drawdown).snapshot;
 }
