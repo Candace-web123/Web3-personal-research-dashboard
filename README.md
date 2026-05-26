@@ -1,6 +1,6 @@
 # Web3 Research Dashboard
 
-个人 Web3 投研工作台（V1.3）：单页仪表盘 + AI 投研决策辅助系统，混合实时数据与 demo fallback，界面语言为简体中文。CoinGecko / Alternative.me / DeFiLlama / CoinGlass 四源实时数据已接入，其余字段 demo 兜底。
+个人 Web3 投研工作台（V1.3）：单页仪表盘 + AI 投研决策辅助系统。**AI 决策引擎卡片（市场状态 / 风险模式 / 仓位计算 / 审计）使用实时数据**，V1.2 内容卡片（BTC 周期 / 市场环境 / Alpha 等）仍为 demo mock。界面语言为简体中文。
 
 ## 技术栈
 
@@ -34,7 +34,7 @@ data/  →  lib/  →  app/  →  components/dashboard/
 |------|------|------|
 | Mock 数据 | `data/` | 静态快照与 accessor；**仅通过** `data/index.ts` 对外暴露。`data/portfolio-input.ts` 为用户持仓编辑入口 |
 | 业务逻辑 | `lib/` | 纯函数，无 React；决策合成、校验、展示格式化。**例外：`lib/real-market-data.ts` 为唯一 fetch 边界** |
-| 应用壳 | `app/` | `page.tsx` 编排数据与组件；单路由 `/` |
+| 应用壳 | `app/` | `page.tsx`（`force-dynamic`）编排数据与组件；单路由 `/` |
 | UI 组件 | `components/dashboard/` | 纯展示，经 props 接收数据 |
 
 ### AI 决策辅助系统（V1.3）
@@ -52,10 +52,13 @@ knowledge/  +  prompts/  +  live API  →  scripts/run-daily-report.mjs  →  re
 
 ## V1.3 数据策略
 
-- **混合模式**：CoinGecko（BTC/ETH 价格）、Alternative.me（恐惧贪婪）、DeFiLlama（稳定币趋势）、CoinGlass（资金费率+OI）为实时 API；其余字段 demo fallback
+- **AI 引擎卡片为实时数据**：市场状态判定、风险模式、仓位计算、审计追踪由 V1.3 引擎驱动，输入来自 CoinGecko / Alternative.me / DeFiLlama / CoinGlass 四源实时 API
+- **V1.2 内容卡片仍为 demo**：BTC 周期卡、市场环境评分卡、异动 Top 5、强信号、Alpha Top 10、仓位建议、风险提示等仍使用 V1.2 mock 快照（`asOf: "2026-05-18"`）
+- **字段级混合（非整体回退）**：引擎内部 `mergeMarketData()` 采用字段级合并 —— live 值非 `null`/`undefined` 时才覆盖 demo；任一 API 失败仅该字段回退 demo，不影响其他字段和页面整体
 - **API 失败安全**：任意数据源超时/失败 → 对应字段回退 demo，页面不崩溃
-- **用户持仓**：编辑 `data/portfolio-input.ts` 即可更新持仓；BTC/ETH 市价自动从 CoinGecko 填充
-- **环境变量**：`COINGLASS_API_KEY`（可选，未设置则相关字段用 demo）、`ANTHROPIC_API_KEY`（仅日报 AI 生成需要）
+- **动态渲染**：页面使用 `force-dynamic`（Next.js Route Segment Config），每次请求拉取最新 API 数据，非 build-time 静态生成
+- **用户持仓**：编辑 `data/portfolio-input.ts` 即可更新持仓；`currentPriceUsd: 0` 的币种自动从 CoinGecko 填充市价（覆盖 30+ 主流币种）
+- **环境变量**：`COINGLASS_API_KEY`（可选，未设置则资金费率/OI 回退 demo）、`ANTHROPIC_API_KEY`（仅日报 AI 生成需要）
 
 ## V1.2 MVP 约束
 

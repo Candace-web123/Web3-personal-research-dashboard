@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Web3 Research Dashboard — a personal Web3 investment research workspace built with Next.js 15 App Router. **V1.3: hybrid live + demo data, single page at `/`.** Language is zh-CN throughout the UI.
 
-**Current state:** P0–P3 complete. Market state engine, risk mode selector, portfolio calculator, and audit trail are all functional. 4 live data sources (CoinGecko, Alternative.me, DeFiLlama, CoinGlass) feed 6 of 11 data fields; remaining 5 fields fall back to demo. P4 (backtesting/review) is next.
+**Current state:** P0–P4-0 complete. Market state engine, risk mode selector, portfolio calculator, audit trail, and dynamic rendering are all functional. 4 live data sources (CoinGecko, Alternative.me, DeFiLlama, CoinGlass) feed 6 of 11 data fields; remaining 5 fields fall back to demo. P4 (backtesting/review) is next.
+
+**Rendering mode:** `app/page.tsx` uses `export const dynamic = "force-dynamic"` (Next.js Route Segment Config). The page renders on every request — live API data is fetched at request time, not baked at build time. Without this, Next.js would statically generate the page with stale data from `next build`.
 
 ## Commands
 
@@ -45,13 +47,13 @@ risk-mode-selector.ts ← market state + drawdown → portfolio.ts (PnL / alloca
 
 | Module | Lines | Role |
 |--------|-------|------|
-| `lib/market-state-engine.ts` | 249 | 7 states × 9 dimensions, scoring-based classification, confidence calc |
-| `lib/pipeline.ts` | 72 | RawMarketData → MarketStateInput → assessMarketState(), pure transform |
-| `lib/risk-mode-selector.ts` | 213 | MarketRegime → 4 risk modes, drawdown override, P0 event handling |
-| `lib/portfolio.ts` | 140 | PnL calc, allocation breakdown, risk check against mode |
-| `lib/audit.ts` | 95 | DecisionRecord create / user action / outcome / summarize |
-| `lib/ai-decision-orchestrator.ts` | 146 | Wires all 5 engines, merge live + demo, produces AiDecisionSnapshot |
-| `lib/real-market-data.ts` | 206 | **Sole fetch boundary.** CoinGecko, Alternative.me, DeFiLlama, CoinGlass |
+| `lib/market-state-engine.ts` | 7 states × 9 dimensions, scoring-based classification, confidence calc |
+| `lib/pipeline.ts` | RawMarketData → MarketStateInput → assessMarketState(), pure transform |
+| `lib/risk-mode-selector.ts` | MarketRegime → 4 risk modes, drawdown override, P0 event handling |
+| `lib/portfolio.ts` | PnL calc, allocation breakdown, risk check against mode |
+| `lib/audit.ts` | DecisionRecord create / user action / outcome / summarize |
+| `lib/ai-decision-orchestrator.ts` | Wires all 5 engines, merge live + demo, produces AiDecisionSnapshot |
+| `lib/real-market-data.ts` | **Sole fetch boundary.** CoinGecko, Alternative.me, DeFiLlama, CoinGlass |
 
 ### Live data sources
 
@@ -62,7 +64,24 @@ risk-mode-selector.ts ← market state + drawdown → portfolio.ts (PnL / alloca
 | DeFiLlama | `stablecoinTrend` | None |
 | CoinGlass | `avgFundingRate`, `oiChangeRate` | `COINGLASS_API_KEY` env var |
 
-Fields still demo: `btc200dMa`, `btc200dMaSlope`, `ethBtcTrend`, `total3BtcTrend`, `etfFlowDirection`.
+Fields still demo (5 of 11): `btc200dMa`, `btc200dMaSlope`, `ethBtcTrend`, `total3BtcTrend`, `etfFlowDirection`.
+
+**Which dashboard sections are live vs demo:**
+
+| Card / Section | Data Source |
+|----------------|-------------|
+| Decision Hero（市场状态判定） | Live: market state engine fed by real API data |
+| AI 决策辅助（market state + risk mode + portfolio + audit） | Live: all 6 engines consume real API data where available |
+| BTC 周期卡 | Demo: V1.2 mock snapshot (asOf "2026-05-18") |
+| 市场环境评分卡 | Demo: V1.2 mock snapshot |
+| 异动 Top 5 | Demo: V1.2 mock |
+| 强链 / 强赛道 / 强协议 | Demo: V1.2 mock |
+| Alpha Top 10 | Demo: V1.2 mock |
+| 仓位建议 + 风险提示 | Demo: V1.2 mock |
+| 实际仓位对比 | Mixed: user portfolio input (live) + V1.2 mock benchmarks |
+| 每日复盘 | Demo: V1.2 mock |
+
+In short: **AI decision engine cards are live; V1.2 content cards remain demo.** The field-level merge (`mergeMarketData`) only affects the engine pipeline, not the legacy V1.2 UI cards.
 
 ### Knowledge base & report pipeline
 
@@ -100,9 +119,9 @@ Tailwind v4 with `@tailwindcss/postcss`. Color encodings are semantic: emerald f
 
 ## Task management
 
-- Completed: TASK-001 through TASK-025 (V1.2 MVP), P0–P3 (V1.3 AI engine + live data)
+- Completed: TASK-001 through TASK-025 (V1.2 MVP), P0–P4-0 (V1.3 AI engine + live data + dynamic rendering)
 - Next: P4 (backtesting / review)
-- Task file: `docs/TASKS.md` (V1.2 only; V1.3 tasks tracked in conversation)
+- Task file: `docs/TASKS.md`
 - Old `tasks/TASKS_Web3_Research_MVP.md` is archived — do not execute tasks from it
 - PRD: `docs/PRD.md`
 
